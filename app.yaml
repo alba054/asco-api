@@ -1,1 +1,8 @@
 runtime: nodejs20
+env_variables:
+  DATABASE_URL: "mysql://root:12345678@34.128.67.12:3306/asco"
+  PORT: 7892
+  TESTING_PORT: 8889
+  HOST: 127.0.0.1
+  JWT_SECRET: "^[Nk&S,!;5;N9sUFt#,GBlsWdKB,YPaMyTY]zv4SCkNd}aioJ#"
+  ISSUER: api.jj

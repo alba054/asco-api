@@ -22,8 +22,8 @@ jobs:
 
       # Deploy the application
       - name: Deploy to App Engine
-        uses: marketplace/actions/deploy-gae-action@v1.0.1  # Replace with the latest version
+        uses: google-github-actions/deploy-appengine@v2 # Replace with the latest version
         with:
-          service-account: ${{ secrets.GOOGLE_CLOUD_CREDENTIALS }}  # Base64 encoded service account JSON
-          project-id: ${{ secrets.GCP_PROJECT_ID }}
-          config-files: app.yaml  # Path to your App Engine configuration file
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service: asco-app-2905 # Replace with your App Engine service name
+          config: app.yaml # Path to your App Engine configuration file
