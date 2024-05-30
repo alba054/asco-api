@@ -1,0 +1,253 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  username  String    @unique @db.VarChar(255)
+  password  String    @db.VarChar(255)
+  role      USER_ROLE
+  profile   Profile?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+
+  @@map("users")
+}
+
+model Profile {
+  id                       String           @id @default(uuid())
+  username                 String           @unique @db.VarChar(255)
+  fullname                 String           @db.VarChar(255)
+  nickname                 String           @db.VarChar(50)
+  classOf                  String           @db.VarChar(5)
+  githubUsername           String?          @db.VarChar(255)
+  instagramUsername        String?          @db.VarChar(255)
+  profilePic               String?          @db.VarChar(255)
+  user                     User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId                   String           @unique
+  practicums               Practicum[]
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @default(now()) @updatedAt
+  practicumId              String?
+  classrooms               Classroom[]
+  assistantMeetings        Meeting[]        @relation(name: "meeting_assistant")
+  coAssistantMeetings      Meeting[]        @relation(name: "meeting_co_assistant")
+  attendances              Attendance[]
+  assistantAssistantGroups AssistantGroup[] @relation(name: "assistant_group_assistant")
+  studentAssistantGroups   AssistantGroup[] @relation(name: "assistant_group_student")
+  controlCards             ControlCard[]
+  scores                   Score[]
+  LabExamScore             LabExamScore[]
+
+  @@map("profiles")
+}
+
+model Practicum {
+  id              String           @id @default(uuid())
+  course          String           @unique @db.VarChar(255)
+  badge           String?          @db.VarChar(255)
+  courseContract  String?          @db.VarChar(255)
+  participants    Profile[]
+  profileId       String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  classrooms      Classroom[]
+  meetings        Meeting[]
+  assistantGroups AssistantGroup[]
+  LabExamScore    LabExamScore[]
+
+  @@map("practicums")
+}
+
+model Classroom {
+  id          String       @id @default(uuid())
+  name        String       @db.VarChar(3)
+  meetingDay  DAY
+  startTime   Int          @db.UnsignedSmallInt
+  endTime     Int          @db.UnsignedSmallInt
+  practicum   Practicum    @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  students    Profile[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
+  practicumId String
+  attendances Attendance[]
+  scores      Score[]
+
+  @@unique([name, practicumId])
+  @@map("classrooms")
+}
+
+model Meeting {
+  id                 String        @id @default(uuid())
+  number             Int           @db.UnsignedSmallInt
+  lesson             String        @db.VarChar(255)
+  meetingDate        BigInt        @db.UnsignedBigInt
+  assistant          Profile       @relation(name: "meeting_assistant", fields: [assistantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  coAssistant        Profile?      @relation(name: "meeting_co_assistant", fields: [coAssistantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  module             String?       @db.VarChar(255)
+  assignment         String?       @db.VarChar(255)
+  assistanceDeadline BigInt        @db.UnsignedBigInt
+  practicum          Practicum     @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @default(now()) @updatedAt
+  assistantId        String
+  coAssistantId      String?
+  practicumId        String
+  attendances        Attendance[]
+  controlCards       ControlCard[]
+  scores             Score[]
+
+  @@map("meetings")
+}
+
+model Attendance {
+  id               String            @id @default(uuid())
+  classroom        Classroom         @relation(fields: [classroomId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  meeting          Meeting           @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  student          Profile           @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  attendanceStatus ATTENDANCE_STATUS @default(ABSENT)
+  extraPoint       Int?              @db.UnsignedSmallInt
+  time             Int?              @db.UnsignedSmallInt
+  note             String?           @db.Text
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now()) @updatedAt
+  classroomId      String
+  meetingId        String
+  profileId        String
+
+  @@map("attendances")
+}
+
+model AssistantGroup {
+  id             String    @id @default(uuid())
+  number         Int       @db.UnsignedSmallInt
+  assistant      Profile   @relation(name: "assistant_group_assistant", fields: [assistantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  students       Profile[] @relation(name: "assistant_group_student")
+  practicum      Practicum @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  githubRepoLink String?   @db.VarChar(255)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+  assistantId    String
+  practicumId    String
+
+  @@map("assistant_groups")
+}
+
+model ControlCard {
+  id                 String     @id @default(uuid())
+  student            Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  meeting            Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  firstAssistance    Assistance @relation(name: "control_card_first_assistance", fields: [firstAssistanceId], references: [id])
+  secondAssistance   Assistance @relation(name: "control_card_second_assistance", fields: [secondAssistanceId], references: [id])
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @default(now()) @updatedAt
+  profileId          String
+  meetingId          String
+  firstAssistanceId  String     @unique
+  secondAssistanceId String     @unique
+
+  @@map("control_cards")
+}
+
+model Assistance {
+  id                          String       @id @default(uuid())
+  status                      Boolean      @default(false)
+  date                        BigInt       @db.UnsignedBigInt
+  note                        String?      @db.Text
+  createdAt                   DateTime     @default(now())
+  updatedAt                   DateTime     @default(now()) @updatedAt
+  firstAssistanceControlCard  ControlCard? @relation(name: "control_card_first_assistance")
+  secondAssistanceControlCard ControlCard? @relation(name: "control_card_second_assistance")
+
+  @@map("assistances")
+}
+
+model Score {
+  id          String     @id @default(uuid())
+  classroom   Classroom  @relation(fields: [classroomId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  meeting     Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  student     Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  type        SCORE_TYPE
+  score       Float      @default(0) @db.Double
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+  classroomId String
+  meetingId   String
+  profileId   String
+
+  @@map("scores")
+}
+
+model LabExamScore {
+  id          String    @id @default(uuid())
+  practicum   Practicum @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  student     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  score       Float     @default(0) @db.Double
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  practicumId String
+  profileId   String
+
+  @@map("lab_exam_scores")
+}
+
+model Extra {
+  id               String   @id @default(uuid())
+  quiestionareLink String?  @db.VarChar(255)
+  quizLink         String?  @db.VarChar(255)
+  labExamInfo      String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now()) @updatedAt
+
+  @@map("extras")
+}
+
+model LabRule {
+  id                           String   @id @default(uuid())
+  labRulePath                  String?  @db.VarChar(255)
+  assistanceDelayMinimumPoints Int      @db.UnsignedSmallInt
+  assistanceDelayMaximumPoints Int      @db.UnsignedSmallInt
+  attendanceDelayMinimumPoints Int      @db.UnsignedSmallInt
+  attendanceDelayMaximumPoints Int      @db.UnsignedSmallInt
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @default(now()) @updatedAt
+
+  @@map("lab_rules")
+}
+
+enum USER_ROLE {
+  STUDENT
+  ASSISTANT
+  ADMIN
+}
+
+enum DAY {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum ATTENDANCE_STATUS {
+  SICK
+  ABSENT
+  PERMISSION
+  ATTEND
+}
+
+enum SCORE_TYPE {
+  RESPONSE
+  ASSIGNMENT
+  QUIZ
+}
