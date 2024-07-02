@@ -7,6 +7,7 @@ import { PracticumRepository } from "./PracticumRepository";
 import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 import { UserEntity } from "../../entity/user/UserEntity";
+import { ClassroomEntity } from "../../entity/classroom/ClassroomEntity";
 
 export class PracticumPrismaRepositoryImpl extends PracticumRepository {
   async deletePracticumById(practicumId: string): Promise<void> {
@@ -63,6 +64,18 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
     });
 
     return new PracticumEntity(practicum?.course ?? "", {
+      classrooms: practicum?.classrooms.map((c) => {
+        return new ClassroomEntity(
+          c.name,
+          c.meetingDay,
+          c.startTime,
+          c.endTime,
+          {
+            id: c.id,
+            practicumId: c.practicumId,
+          }
+        );
+      }),
       badge: practicum?.badge ?? "",
       classroomsLength: practicum?.classrooms.length,
       courseContract: practicum?.courseContract ?? "",

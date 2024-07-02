@@ -2,6 +2,7 @@ import { USER_ROLE } from "@prisma/client";
 import { prismaDb } from "../../config/database/PrismaORMDBConfig";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 import { ProfileRepository } from "./ProfileRepository";
+import { UserEntity } from "../../entity/user/UserEntity";
 
 export class ProfilePrismaRepositoryImpl extends ProfileRepository {
   async getProfiles(
@@ -21,6 +22,13 @@ export class ProfilePrismaRepositoryImpl extends ProfileRepository {
           // },
         ],
       },
+      include: {
+        user: {
+          select: {
+            role: true,
+          },
+        },
+      },
     });
 
     return (
@@ -30,7 +38,12 @@ export class ProfilePrismaRepositoryImpl extends ProfileRepository {
           p.fullname,
           p.nickname,
           p.classOf,
-          { userId: p.userId, id: p.id }
+          {
+            userId: p.userId,
+            id: p.id,
+            user: new UserEntity(p.username, "", p.user.role),
+            profilePic: p.profilePic ?? "",
+          }
         );
       }) ?? []
     );
@@ -39,6 +52,13 @@ export class ProfilePrismaRepositoryImpl extends ProfileRepository {
   async getProfileByUsername(username: string): Promise<ProfileEntity | null> {
     const profile = await prismaDb.db?.profile.findUnique({
       where: { username },
+      include: {
+        user: {
+          select: {
+            role: true,
+          },
+        },
+      },
     });
 
     if (!profile) {
@@ -55,6 +75,7 @@ export class ProfilePrismaRepositoryImpl extends ProfileRepository {
         id: profile.id,
         instagramUsername: profile.instagramUsername ?? "",
         profilePic: profile.profilePic ?? "",
+        user: new UserEntity(profile.username, "", profile.user.role),
       }
     );
   }

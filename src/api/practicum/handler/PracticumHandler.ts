@@ -9,7 +9,37 @@ export abstract class PracticumHandler {
     this.deletePracticum = this.deletePracticum.bind(this);
     this.postAssitantsAndClassrooms =
       this.postAssitantsAndClassrooms.bind(this);
+    this.postMeetingToPracticum = this.postMeetingToPracticum.bind(this);
+    this.getPracticumMeetings = this.getPracticumMeetings.bind(this);
+    this.postPracticumAssistanceGroups =
+      this.postPracticumAssistanceGroups.bind(this);
+    this.getPracticumAssistanceGroups =
+      this.getPracticumAssistanceGroups.bind(this);
   }
+
+  abstract getPracticumAssistanceGroups(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
+
+  abstract postPracticumAssistanceGroups(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
+
+  abstract getPracticumMeetings(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
+
+  abstract postMeetingToPracticum(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract postAssitantsAndClassrooms(
     req: Request,

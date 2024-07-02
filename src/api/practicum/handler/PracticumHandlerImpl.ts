@@ -7,23 +7,35 @@ import { ParsedQs } from "qs";
 import { PracticumService } from "../../../services/practicum/PracticumService";
 import { IPostPracticumPayload } from "../../../utils/interfaces/request/IPostPracticumPayload";
 import { PracticumPostPayloadSchema } from "../../../utils/validator/practicum/Joi/PracticumPostPayloadSchema";
-import { listPracticumDTO } from "../../../utils/dto/practicum/IListPracticumDTO";
+import { ListPracticumDTO } from "../../../utils/dto/practicum/IListPracticumDTO";
 import { PracticumDTO } from "../../../utils/dto/practicum/IPracticumDTO";
 import { IPutPracticumPayload } from "../../../utils/interfaces/request/IPutPracticumPayload";
-import { PracticumPutPayloadSchema } from "../../../utils/validator/practicum/Joi/PracticumPutPayloadSchema copy";
+import { PracticumPutPayloadSchema } from "../../../utils/validator/practicum/Joi/PracticumPutPayloadSchema";
 import { IPostPracticumClassroomsAndAssistants } from "../../../utils/interfaces/request/IPostPracticumClassroomsAndAssistants";
 import { PracticumClassroomsAndAssistantsPostPayloadSchema } from "../../../utils/validator/practicum/Joi/PracticumClassroomsAndAssistantsPostPayloadSchema";
 import { PracticumClassroomsAndAssistantsService } from "../../../services/facade/practicumClassroomsAndAssistantsService/PracticumClassroomsAndAssistantsService";
+import { IPostClassroomMeetingPayload } from "../../../utils/interfaces/request/IPostClassroomMeetingPayload";
+import { PracticumMeetingPostPayloadSchema } from "../../../utils/validator/meeting/Joi/PracticumMeetingPostPayloadSchema";
+import { MeetingService } from "../../../services/meeting/MeetingService";
+import { ListMeetingDTO } from "../../../utils/dto/meeting/IListMeetingDTO";
+import { IPostClassroomAssistanceGroupPayload } from "../../../utils/interfaces/request/IPostClassroomAssistanceGroupPayload";
+import { PracticumAssistanceGroupPostPayloadSchema } from "../../../utils/validator/assistanceGroup/Joi/PracticumAssistanceGroupPostPayloadSchema";
+import { AssistanceGroupService } from "../../../services/assistanceGroup/AssistanceGroupService";
+import { ListGroupDTO } from "../../../utils/dto/assistanceGroup/IListGroupDTO";
 
 export class PracticumHandlerImpl extends PracticumHandler {
   private practicumService: PracticumService;
+  private meetingService: MeetingService;
   private schemaValidator: SchemaValidator;
+  private assistanceGroupService: AssistanceGroupService;
   private practicumClassroomsAndAssistantsService: PracticumClassroomsAndAssistantsService;
 
   constructor(
     service: {
       practicumService: PracticumService;
+      meetingService: MeetingService;
       practicumClassroomsAndAssistantsService: PracticumClassroomsAndAssistantsService;
+      assistanceGroupService: AssistanceGroupService;
     },
     schemaValidator: SchemaValidator
   ) {
@@ -31,7 +43,105 @@ export class PracticumHandlerImpl extends PracticumHandler {
     this.practicumService = service.practicumService;
     this.practicumClassroomsAndAssistantsService =
       service.practicumClassroomsAndAssistantsService;
+    this.meetingService = service.meetingService;
+    this.assistanceGroupService = service.assistanceGroupService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async getPracticumAssistanceGroups(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      return res
+        .status(200)
+        .json(
+          createResponse(RESPONSE_MESSAGE.SUCCESS, res.locals)
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async postPracticumAssistanceGroups(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId } = req.params;
+    const payload: IPostClassroomAssistanceGroupPayload = req.body;
+
+    try {
+      this.schemaValidator.validate({
+        schema: PracticumAssistanceGroupPostPayloadSchema,
+        payload,
+      });
+
+      await this.assistanceGroupService.addGroup(practicumId, payload);
+
+      return res
+        .status(201)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            "successfully add group to practicum"
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getPracticumMeetings(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId } = req.params;
+
+    try {
+      const meetings = await this.meetingService.getMeetingsByPracticumId(
+        practicumId
+      );
+
+      return res
+        .status(200)
+        .json(
+          createResponse(RESPONSE_MESSAGE.SUCCESS, meetings.map(ListMeetingDTO))
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async postMeetingToPracticum(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId } = req.params;
+    const payload: IPostClassroomMeetingPayload = req.body;
+
+    try {
+      this.schemaValidator.validate({
+        schema: PracticumMeetingPostPayloadSchema,
+        payload,
+      });
+
+      await this.meetingService.addMeeting(practicumId, payload);
+
+      return res
+        .status(201)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            "successfully add meeting to practicum"
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
   }
 
   async postAssitantsAndClassrooms(
@@ -148,7 +258,7 @@ export class PracticumHandlerImpl extends PracticumHandler {
       .json(
         createResponse(
           RESPONSE_MESSAGE.SUCCESS,
-          practicums.map(listPracticumDTO)
+          practicums.map(ListPracticumDTO)
         )
       );
   }

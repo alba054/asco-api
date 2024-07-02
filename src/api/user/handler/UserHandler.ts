@@ -7,7 +7,14 @@ export abstract class UserHandler {
     this.getUserCredential = this.getUserCredential.bind(this);
     this.getUsersMaster = this.getUsersMaster.bind(this);
     this.deleteUser = this.deleteUser.bind(this);
+    this.putUser = this.putUser.bind(this);
   }
+
+  abstract putUser(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract deleteUser(
     req: Request,

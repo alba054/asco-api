@@ -14,8 +14,10 @@ import { IPostUserPayload } from "../../../utils/interfaces/request/IPostUserPay
 import { UserPostPayloadSchema } from "../../../utils/validator/user/Joi/UserPostPayloadSchema";
 import { ITokenPayload } from "../../../utils/interfaces/ITokenPayload";
 import { ProfileService } from "../../../services/profile/ProfileService";
-import { profileDTO } from "../../../utils/dto/profile/IProfileDTO";
-import { listProfileDTO } from "../../../utils/dto/profile/IListProfileDTO";
+import { ProfileDTO } from "../../../utils/dto/profile/IProfileDTO";
+import { ListProfileDTO } from "../../../utils/dto/profile/IListProfileDTO";
+import { IPutUserPayload } from "../../../utils/interfaces/request/IPutUserPayload";
+import { UserPutPayloadSchema } from "../../../utils/validator/user/Joi/UserPutPayloadSchema";
 
 export class UserHandlerImpl extends UserHandler {
   private authService: AuthService;
@@ -37,6 +39,29 @@ export class UserHandlerImpl extends UserHandler {
     this.userService = service.userService;
     this.profileService = service.profileService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async putUser(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+    next: NextFunction
+  ): Promise<any> {
+    const { username } = req.params;
+    const payload: IPutUserPayload = req.body;
+
+    try {
+      this.schemaValidator.validate({ schema: UserPutPayloadSchema, payload });
+
+      await this.userService.updateUserByUsername(username, payload);
+
+      return res
+        .status(200)
+        .json(
+          createResponse(RESPONSE_MESSAGE.SUCCESS, "succesfully edit user")
+        );
+    } catch (error) {
+      return next(error);
+    }
   }
 
   async deleteUser(
@@ -71,7 +96,7 @@ export class UserHandlerImpl extends UserHandler {
     return res
       .status(200)
       .json(
-        createResponse(RESPONSE_MESSAGE.SUCCESS, users.map(listProfileDTO))
+        createResponse(RESPONSE_MESSAGE.SUCCESS, users.map(ListProfileDTO))
       );
   }
 
@@ -89,7 +114,7 @@ export class UserHandlerImpl extends UserHandler {
 
       return res
         .status(200)
-        .json(createResponse(RESPONSE_MESSAGE.SUCCESS, profileDTO(user)));
+        .json(createResponse(RESPONSE_MESSAGE.SUCCESS, ProfileDTO(user)));
     } catch (error) {
       return next(error);
     }

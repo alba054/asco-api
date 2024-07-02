@@ -1,3 +1,4 @@
+import { USER_ROLE } from "@prisma/client";
 import { ProfileEntity } from "../../../entity/profile/ProfileEntitiy";
 
 interface IProfileDTO {
@@ -9,9 +10,10 @@ interface IProfileDTO {
   githubUsername?: string;
   instagramUsername?: string;
   profilePic?: string;
+  role: USER_ROLE;
 }
 
-export const profileDTO = (profile: ProfileEntity) => {
+export const ProfileDTO = (profile: ProfileEntity) => {
   return {
     classOf: profile.classOf,
     fullname: profile.fullname,
@@ -21,5 +23,6 @@ export const profileDTO = (profile: ProfileEntity) => {
     githubUsername: profile.githubUsername,
     instagramUsername: profile.instagramUsername,
     profilePic: profile.profilePic,
+    role: profile.user?.role,
   } as IProfileDTO;
 };

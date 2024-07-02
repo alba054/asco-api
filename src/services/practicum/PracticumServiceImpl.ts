@@ -41,11 +41,14 @@ export class PracticumServiceImpl extends PracticumService {
       );
     }
 
-    const practicumEntity = new PracticumEntity(payload.course ?? "", {
-      id: practicumId,
-      badge: payload.badge,
-      courseContract: payload.courseContract,
-    });
+    const practicumEntity = new PracticumEntity(
+      payload.course ?? practicum.course,
+      {
+        id: practicumId,
+        badge: payload.badge,
+        courseContract: payload.courseContract,
+      }
+    );
 
     return await this.practicumRepository.updatePracticumById(practicumEntity);
   }

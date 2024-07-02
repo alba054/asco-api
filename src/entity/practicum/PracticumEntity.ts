@@ -11,6 +11,8 @@
 //   assistantGroups AssistantGroup[]
 //   LabExamScore    LabExamScore[]
 
+import { ClassroomEntity } from "../classroom/ClassroomEntity";
+import { MeetingEntity } from "../meeting/MeetingEntity";
 import { ProfileEntity } from "../profile/ProfileEntitiy";
 
 export class PracticumEntity {
@@ -20,6 +22,8 @@ export class PracticumEntity {
   private _badge?: string | undefined;
   private _courseContract?: string | undefined;
   private _participants: ProfileEntity[];
+  private _classrooms: ClassroomEntity[];
+  private _meetings: MeetingEntity[];
 
   constructor(
     course: string,
@@ -29,6 +33,8 @@ export class PracticumEntity {
       courseContract?: string;
       participants?: ProfileEntity[];
       classroomsLength?: number;
+      classrooms?: ClassroomEntity[];
+      meetings?: MeetingEntity[];
     }
   ) {
     this._course = course;
@@ -37,6 +43,23 @@ export class PracticumEntity {
     this.courseContract = args?.courseContract;
     this._participants = args?.participants ?? [];
     this.classroomsLength = args?.classroomsLength;
+    this._classrooms = args?.classrooms ?? [];
+    this._meetings = args?.meetings ?? [];
+  }
+
+  public get meetings(): MeetingEntity[] {
+    return this._meetings;
+  }
+
+  public set meetings(value: MeetingEntity[]) {
+    this._meetings = value;
+  }
+
+  public get classrooms(): ClassroomEntity[] {
+    return this._classrooms;
+  }
+  public set classrooms(value: ClassroomEntity[]) {
+    this._classrooms = value;
   }
 
   public get classroomsLength(): number | undefined {

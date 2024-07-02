@@ -7,7 +7,7 @@ interface IListPracticumDTO {
   classroomsLength?: number;
 }
 
-export const listPracticumDTO = (practicum: PracticumEntity) => {
+export const ListPracticumDTO = (practicum: PracticumEntity) => {
   return {
     id: practicum.id,
     course: practicum.course,

@@ -8,6 +8,36 @@ import { prismaDb } from "../../config/database/PrismaORMDBConfig";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 
 export class UserPrismaRepositoryImpl extends UserRepository {
+  async updateUserByUsername(
+    username: string,
+    edittedUser: UserEntity
+  ): Promise<void> {
+    try {
+      await prismaDb.db?.user.update({
+        where: { username },
+        data: {
+          username: edittedUser.username,
+          password: edittedUser.password,
+          role: edittedUser.role,
+          profile: {
+            update: {
+              classOf: edittedUser.profile?.classOf,
+              fullname: edittedUser.profile?.fullname,
+              nickname: edittedUser.profile?.nickname,
+              username: edittedUser.username
+            }
+          }
+        }
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new BadRequestError(ERRORCODE.BAD_REQUEST_ERROR, error.message);
+      } else if (error instanceof Error) {
+        throw new InternalServerError(error.message);
+      }
+    }
+  }
+
   async deleteUserByUsername(username: string): Promise<void> {
     try {
       await prismaDb.db?.user.delete({

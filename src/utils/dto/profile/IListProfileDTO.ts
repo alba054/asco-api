@@ -6,13 +6,15 @@ interface IListProfileDTO {
   fullname: string;
   username: string;
   role: USER_ROLE;
+  profilePic: string;
+  classOf: string;
   user?: {
     id: string;
   };
   id: string;
 }
 
-export const listProfileDTO = (profile: ProfileEntity) => {
+export const ListProfileDTO = (profile: ProfileEntity) => {
   return {
     id: profile.id,
     user: { id: profile.userId },
@@ -20,5 +22,7 @@ export const listProfileDTO = (profile: ProfileEntity) => {
     role: profile.user?.role,
     username: profile.username,
     nickname: profile.nickname,
+    classOf: profile.classOf,
+    profilePic: profile.profilePic,
   } as IListProfileDTO;
 };

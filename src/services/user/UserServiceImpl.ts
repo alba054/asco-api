@@ -6,10 +6,45 @@ import { UserService } from "./UserService";
 import { IPostUserPayload } from "../../utils/interfaces/request/IPostUserPayload";
 import { bcryptHash } from "../../config/crypto/BcryptImpl";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
+import { IPutUserPayload } from "../../utils/interfaces/request/IPutUserPayload";
 
 export class UserServiceImpl extends UserService {
   constructor(repository: { userRepository: UserRepository }) {
     super(repository);
+  }
+
+  async updateUserByUsername(
+    username: string,
+    payload: IPutUserPayload
+  ): Promise<void> {
+    const user = await this.userRepository.getUserByUsername(username);
+
+    if (!user) {
+      throw new NotFoundError(
+        ERRORCODE.USER_NOT_FOUND_ERROR,
+        "user's not found"
+      );
+    }
+
+    const password = payload.password
+      ? bcryptHash.hashSync(payload.password)
+      : user.password;
+
+    const edittedUser = new UserEntity(
+      payload.username ?? user.username,
+      password,
+      payload.role ?? user.role,
+      {
+        profile: new ProfileEntity(
+          payload.username ?? user.username,
+          payload.fullname ?? user.profile?.fullname ?? "",
+          payload.fullname?.split(" ").at(1) ?? user.profile?.nickname ?? "",
+          payload.classOf ?? user.profile?.classOf ?? ""
+        ),
+      }
+    );
+
+    await this.userRepository.updateUserByUsername(username, edittedUser);
   }
 
   async deleteUserByUsername(username: string): Promise<void> {
