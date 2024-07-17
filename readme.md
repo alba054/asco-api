@@ -19,3 +19,9 @@ untuk menambahkan data student pada database
 4. lalu isi tabel menggunakan ui yang tersedia
 5. tanya alif kalo gagal
    note: tidak ada api untuk menambah student, get student
+
+## DEV LOG <17 July 2024>
+
+1. /api/practicums/{practicumId}/students/{studentProfileId}/cards -> get student control cards based on the practicum (authorized for assistant and admin)
+2. /api/cards/{controlCardId} -> get control card detail (authorized for assistant and student)
+3. /api/practicums/{practicumId}/cards -> get student own control cards (authorized for student)
