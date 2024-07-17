@@ -31,7 +31,8 @@ export abstract class MeetingService {
 
   abstract editMeetingById(
     id: string,
-    payload: IPutClassroomMeetingPayload
+    payload: IPutClassroomMeetingPayload,
+    authorization?: { role?: USER_ROLE; assistantId?: string }
   ): Promise<void>;
 
   abstract getMeetingById(id: string): Promise<MeetingEntity>;

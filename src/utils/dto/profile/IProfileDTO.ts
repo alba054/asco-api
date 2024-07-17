@@ -1,5 +1,6 @@
 import { USER_ROLE } from "@prisma/client";
 import { ProfileEntity } from "../../../entity/profile/ProfileEntitiy";
+import { constants } from "../..";
 
 interface IProfileDTO {
   profileId: string;
@@ -22,7 +23,7 @@ export const ProfileDTO = (profile: ProfileEntity) => {
     username: profile.username,
     githubUsername: profile.githubUsername,
     instagramUsername: profile.instagramUsername,
-    profilePic: profile.profilePic,
+    profilePic: constants.GCS_OBJECT_BASE(profile.profilePic),
     role: profile.user?.role,
   } as IProfileDTO;
 };

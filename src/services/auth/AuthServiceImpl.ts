@@ -21,6 +21,7 @@ export class AuthServiceImpl extends AuthService {
       userId: tokenPayload.userId,
       username: tokenPayload.username,
       userRole: tokenPayload.userRole,
+      profileId: tokenPayload.profileId,
     };
 
     const accessToken = await tokenGenerator.sign(

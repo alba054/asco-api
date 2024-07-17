@@ -1,8 +1,11 @@
+import { USER_ROLE } from "@prisma/client";
 import { AssistanceGroupEntity } from "../../entity/assistanceGroup/AssistanceGroupEntity";
+import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 import { NotFoundError } from "../../Exceptions/http/NotFoundError";
 import { ERRORCODE } from "../../utils";
 import { IPostClassroomAssistanceGroupPayload } from "../../utils/interfaces/request/IPostClassroomAssistanceGroupPayload";
 import { IPutAssistanceGroupPayload } from "../../utils/interfaces/request/IPutAssistanceGroupPayload";
+import { IControlCardPayload } from "../../utils/interfaces/schema/IControlCardPayload";
 import { AssistanceGroupService } from "./AssistanceGroupService";
 
 export class AssistanceGroupServiceImpl extends AssistanceGroupService {
@@ -87,6 +90,32 @@ export class AssistanceGroupServiceImpl extends AssistanceGroupService {
     );
   }
 
+  private async checkStudentsInPracticum(
+    practicumId: string,
+    students: string[]
+  ) {
+    const practicum = await this.practicumRepository.getPracticumById(
+      practicumId
+    );
+
+    if (!practicum) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "practicum's not found"
+      );
+    }
+
+    const practicumStudents = practicum.participants.map((p) => p.id);
+    students.forEach((student) => {
+      if (!practicumStudents.includes(student)) {
+        throw new BadRequestError(
+          ERRORCODE.BAD_REQUEST_ERROR,
+          "cannot add at least one student in your payload, unregistered in practicum"
+        );
+      }
+    });
+  }
+
   async addGroup(
     practicumId: string,
     payload: IPostClassroomAssistanceGroupPayload
@@ -102,12 +131,25 @@ export class AssistanceGroupServiceImpl extends AssistanceGroupService {
       );
     }
 
+    await this.checkStudentsInPracticum(practicumId, payload.mentees);
+
     const group = new AssistanceGroupEntity(payload.number, {
       assistantId: payload.mentor,
       studentIds: payload.mentees,
       practicumId,
     });
 
-    await this.assistanceGroupRepository.addGroup(group);
+    const groupPostState = await this.assistanceGroupRepository.addGroup(group);
+
+    const controlCardMessagesPayload: IControlCardPayload[] =
+      payload.mentees.map((d) => ({
+        studentId: d,
+        practicumId: practicumId,
+        meetings: practicum.meetings.map((m) => m.id),
+      }));
+
+    if (groupPostState) {
+      this.messagingService?.publish(controlCardMessagesPayload);
+    }
   }
 }

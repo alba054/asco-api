@@ -267,18 +267,20 @@ export class AssistanceGroupPrismaRepositoryImpl extends AssistanceGroupReposito
     );
   }
 
-  async addGroup(group: AssistanceGroupEntity): Promise<void> {
+  async addGroup(group: AssistanceGroupEntity): Promise<void | boolean> {
     try {
       await prismaDb.db?.assistantGroup.create({
         data: {
           number: group.number,
-          assistantId: group.assistantId ?? "",
-          practicumId: group.practicumId ?? "",
+          assistantId: group.assistantId!,
+          practicumId: group.practicumId!,
           students: {
             connect: group.studentIds?.map((sid) => ({ id: sid })),
           },
         },
       });
+
+      return true;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw new BadRequestError(ERRORCODE.BAD_REQUEST_ERROR, error.message);

@@ -17,6 +17,7 @@ import { ProfileEntity } from "../profile/ProfileEntitiy";
 
 export class PracticumEntity {
   private _classroomsLength?: number | undefined;
+  private _meetingsLength?: number | undefined;
   private _id?: string | undefined;
   private _course: string;
   private _badge?: string | undefined;
@@ -24,6 +25,7 @@ export class PracticumEntity {
   private _participants: ProfileEntity[];
   private _classrooms: ClassroomEntity[];
   private _meetings: MeetingEntity[];
+  private _examInfo?: string | undefined;
 
   constructor(
     course: string,
@@ -33,8 +35,10 @@ export class PracticumEntity {
       courseContract?: string;
       participants?: ProfileEntity[];
       classroomsLength?: number;
+      meetingsLength?: number;
       classrooms?: ClassroomEntity[];
       meetings?: MeetingEntity[];
+      examInfo?: string;
     }
   ) {
     this._course = course;
@@ -45,6 +49,22 @@ export class PracticumEntity {
     this.classroomsLength = args?.classroomsLength;
     this._classrooms = args?.classrooms ?? [];
     this._meetings = args?.meetings ?? [];
+    this.examInfo = args?.examInfo;
+    this.meetingsLength = args?.meetingsLength;
+  }
+
+  public get examInfo(): string | undefined {
+    return this._examInfo;
+  }
+  public set examInfo(value: string | undefined) {
+    this._examInfo = value;
+  }
+
+  public get meetingsLength(): number | undefined {
+    return this._meetingsLength;
+  }
+  public set meetingsLength(value: number | undefined) {
+    this._meetingsLength = value;
   }
 
   public get meetings(): MeetingEntity[] {

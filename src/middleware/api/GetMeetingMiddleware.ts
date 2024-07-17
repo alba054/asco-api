@@ -3,6 +3,7 @@ import { ERRORCODE, getTokenPayload } from "../../utils";
 import { ITokenPayload } from "../../utils/interfaces/ITokenPayload";
 import { MeetingService } from "../../services/meeting/MeetingService";
 import { BadRequestError } from "../../Exceptions/http/BadRequestError";
+import { USER_ROLE } from "@prisma/client";
 
 export class GetMeetingMiddleware {
   private meetingService: MeetingService;
@@ -14,15 +15,19 @@ export class GetMeetingMiddleware {
   }
 
   async checkAuthorizedRole(req: Request, res: Response, next: NextFunction) {
-    const tokenPayload: ITokenPayload = getTokenPayload(res);
+    const { userRole, username } = getTokenPayload(res);
     const { id } = req.params;
 
     try {
+      if (userRole === USER_ROLE.ADMIN) {
+        return next();
+      }
+
       const isAuthorized =
         await this.meetingService.isUserAuthorizedByMeetingId(
           id,
-          tokenPayload.userRole,
-          tokenPayload.username
+          userRole,
+          username
         );
 
       if (!isAuthorized) {

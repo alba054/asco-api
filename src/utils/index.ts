@@ -63,6 +63,10 @@ export const constants = {
   SUCCESS_RESPONSE_MESSAGE: "success",
   FAILED_RESPONSE_MESSAGE: "success",
   PAGINATION_OFFSET: 20,
+  GCS_OBJECT_BASE: (filename?: string) => {
+    if (!filename) return null;
+    return `https://storage.googleapis.com/asco-app-2905.appspot.com/${filename}`;
+  },
 };
 
 export enum RESPONSE_MESSAGE {

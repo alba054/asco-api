@@ -1,5 +1,6 @@
 import { DAY } from "@prisma/client";
 import { ClassroomEntity } from "../../../entity/classroom/ClassroomEntity";
+import { constants } from "../..";
 
 interface IListClassroomDTO {
   practicum: {
@@ -22,7 +23,7 @@ export const ListClassroomDTO = (classroom: ClassroomEntity) => {
     meetingDay: classroom.meetingDay,
     name: classroom.name,
     practicum: {
-      badge: classroom.practicum?.badge,
+      badge: constants.GCS_OBJECT_BASE(classroom.practicum?.badge),
       course: classroom.practicum?.course,
       id: classroom.practicum?.id,
     },

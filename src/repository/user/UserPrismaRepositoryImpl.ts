@@ -6,6 +6,7 @@ import { InternalServerError } from "../../Exceptions/http/InternalServerError";
 import { ERRORCODE } from "../../utils";
 import { prismaDb } from "../../config/database/PrismaORMDBConfig";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
+import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
 
 export class UserPrismaRepositoryImpl extends UserRepository {
   async updateUserByUsername(
@@ -24,10 +25,10 @@ export class UserPrismaRepositoryImpl extends UserRepository {
               classOf: edittedUser.profile?.classOf,
               fullname: edittedUser.profile?.fullname,
               nickname: edittedUser.profile?.nickname,
-              username: edittedUser.username
-            }
-          }
-        }
+              username: edittedUser.username,
+            },
+          },
+        },
       });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -88,7 +89,18 @@ export class UserPrismaRepositoryImpl extends UserRepository {
   async getUserByUsername(username: string): Promise<UserEntity | null> {
     const user = await prismaDb.db?.user.findUnique({
       where: { username },
-      include: { profile: true },
+      include: {
+        profile: {
+          include: {
+            practicums: {
+              select: {
+                course: true,
+                id: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -108,6 +120,9 @@ export class UserPrismaRepositoryImpl extends UserRepository {
           id: user.profile?.id ?? "",
           instagramUsername: user.profile?.instagramUsername ?? "",
           profilePic: user.profile?.profilePic ?? "",
+          practicums: user.profile?.practicums.map((p) => {
+            return new PracticumEntity(p.course, { id: p.id });
+          }),
         }
       ),
     });

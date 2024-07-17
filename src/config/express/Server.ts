@@ -23,7 +23,7 @@ export class Server {
     // * handling cors to front end web
     this.app.use(
       cors({
-        origin: "http://103.150.117.170:6745",
+        origin: "*",
       })
     );
     // * disable express watermark

@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { RESPONSE_MESSAGE, createResponse } from "../../../utils";
+import {
+  RESPONSE_MESSAGE,
+  createResponse,
+  getTokenPayload,
+} from "../../../utils";
 import { SchemaValidator } from "../../../utils/validator/SchemaValidator";
 import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
@@ -31,6 +35,7 @@ export class MeetingHandlerImpl extends MeetingHandler {
   ): Promise<any> {
     const { id } = req.params;
     const payload: IPutClassroomMeetingPayload = req.body;
+    const { profileId, userRole } = getTokenPayload(res);
 
     try {
       this.schemaValidator.validate({
@@ -38,7 +43,10 @@ export class MeetingHandlerImpl extends MeetingHandler {
         payload,
       });
 
-      await this.meetingService.editMeetingById(id, payload);
+      await this.meetingService.editMeetingById(id, payload, {
+        assistantId: profileId,
+        role: userRole,
+      });
 
       return res
         .status(200)

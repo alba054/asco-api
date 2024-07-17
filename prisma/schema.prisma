@@ -59,10 +59,12 @@ model Practicum {
   profileId       String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @default(now()) @updatedAt
+  examInfo        String?
   classrooms      Classroom[]
   meetings        Meeting[]
   assistantGroups AssistantGroup[]
   LabExamScore    LabExamScore[]
+  ControlCard     ControlCard[]
 
   @@map("practicums")
 }
@@ -142,17 +144,19 @@ model AssistantGroup {
 }
 
 model ControlCard {
-  id                 String     @id @default(uuid())
-  student            Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  meeting            Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  firstAssistance    Assistance @relation(name: "control_card_first_assistance", fields: [firstAssistanceId], references: [id])
-  secondAssistance   Assistance @relation(name: "control_card_second_assistance", fields: [secondAssistanceId], references: [id])
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @default(now()) @updatedAt
+  id                 String      @id @default(uuid())
+  student            Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  meeting            Meeting     @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  firstAssistance    Assistance? @relation(name: "control_card_first_assistance", fields: [firstAssistanceId], references: [id])
+  secondAssistance   Assistance? @relation(name: "control_card_second_assistance", fields: [secondAssistanceId], references: [id])
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @default(now()) @updatedAt
   profileId          String
   meetingId          String
-  firstAssistanceId  String     @unique
-  secondAssistanceId String     @unique
+  firstAssistanceId  String?     @unique
+  secondAssistanceId String?     @unique
+  practicum          Practicum?  @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  practicumId        String?
 
   @@map("control_cards")
 }

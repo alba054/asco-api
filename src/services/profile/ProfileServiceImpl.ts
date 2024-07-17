@@ -11,10 +11,11 @@ export class ProfileServiceImpl extends ProfileService {
   }
 
   async getProfiles(
-    s?: string | undefined,
-    role?: any
+    s?: any,
+    role?: any,
+    practicum?: any
   ): Promise<ProfileEntity[]> {
-    return await this.profileRepository.getProfiles(s, role);
+    return await this.profileRepository.getProfiles(s, role, practicum);
   }
 
   async getProfileByUsername(username: string): Promise<ProfileEntity> {

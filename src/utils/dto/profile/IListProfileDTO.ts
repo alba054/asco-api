@@ -1,5 +1,6 @@
 import { USER_ROLE } from "@prisma/client";
 import { ProfileEntity } from "../../../entity/profile/ProfileEntitiy";
+import { constants } from "../..";
 
 interface IListProfileDTO {
   nickname?: string;
@@ -23,6 +24,6 @@ export const ListProfileDTO = (profile: ProfileEntity) => {
     username: profile.username,
     nickname: profile.nickname,
     classOf: profile.classOf,
-    profilePic: profile.profilePic,
+    profilePic: constants.GCS_OBJECT_BASE(profile.profilePic),
   } as IListProfileDTO;
 };

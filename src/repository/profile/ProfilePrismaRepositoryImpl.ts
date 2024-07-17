@@ -7,7 +7,8 @@ import { UserEntity } from "../../entity/user/UserEntity";
 export class ProfilePrismaRepositoryImpl extends ProfileRepository {
   async getProfiles(
     s?: string | undefined,
-    role?: USER_ROLE | undefined
+    role?: USER_ROLE | undefined,
+    practicum?: string | undefined
   ): Promise<ProfileEntity[]> {
     const profiles = await prismaDb.db?.profile.findMany({
       where: {
@@ -17,9 +18,16 @@ export class ProfilePrismaRepositoryImpl extends ProfileRepository {
               role,
             },
           },
-          // {
-          //   OR: [{ username: { contains: s } }, { fullname: { contains: s } }],
-          // },
+          practicum ? {
+            practicums: {
+              some: {
+                id: practicum,
+              },
+            },
+          } : {},
+          {
+            OR: [{ username: { contains: s } }, { fullname: { contains: s } }],
+          },
         ],
       },
       include: {

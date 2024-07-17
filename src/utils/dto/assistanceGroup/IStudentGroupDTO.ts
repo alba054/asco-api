@@ -1,3 +1,4 @@
+import { constants } from "../..";
 import { AssistanceGroupEntity } from "../../../entity/assistanceGroup/AssistanceGroupEntity";
 
 interface IStudentGroupDTO {
@@ -33,12 +34,12 @@ export const StudentGroupDTO = (group: AssistanceGroupEntity | null) => {
       fullname: group?.assistant?.fullname,
       id: group?.assistantId,
       nickname: group?.assistant?.nickname,
-      profilePic: group?.assistant?.profilePic,
+      profilePic: constants.GCS_OBJECT_BASE(group?.assistant?.profilePic),
     },
     id: group?.id,
     number: group?.number,
     practicum: {
-      badge: group?.practicum?.badge,
+      badge: constants.GCS_OBJECT_BASE(group?.practicum?.badge),
       course: group?.practicum?.course,
       id: group?.practicumId,
     },
@@ -47,7 +48,7 @@ export const StudentGroupDTO = (group: AssistanceGroupEntity | null) => {
       fullname: s.fullname,
       id: s.id,
       nickname: s.nickname,
-      profilePic: s.profilePic,
+      profilePic: constants.GCS_OBJECT_BASE(s.profilePic),
     })),
     studentsCount: group?.students?.length,
   } as IStudentGroupDTO;

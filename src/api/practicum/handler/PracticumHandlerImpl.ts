@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { PracticumHandler } from "./PracticumHandler";
-import { RESPONSE_MESSAGE, createResponse } from "../../../utils";
+import {
+  RESPONSE_MESSAGE,
+  createResponse,
+  getTokenPayload,
+} from "../../../utils";
 import { SchemaValidator } from "../../../utils/validator/SchemaValidator";
 import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
@@ -21,7 +25,10 @@ import { ListMeetingDTO } from "../../../utils/dto/meeting/IListMeetingDTO";
 import { IPostClassroomAssistanceGroupPayload } from "../../../utils/interfaces/request/IPostClassroomAssistanceGroupPayload";
 import { PracticumAssistanceGroupPostPayloadSchema } from "../../../utils/validator/assistanceGroup/Joi/PracticumAssistanceGroupPostPayloadSchema";
 import { AssistanceGroupService } from "../../../services/assistanceGroup/AssistanceGroupService";
-import { ListGroupDTO } from "../../../utils/dto/assistanceGroup/IListGroupDTO";
+import { ControlCardService } from "../../../services/controlCard/ControlCardService";
+import { ListControlCardDTO } from "../../../utils/dto/controlCard/IListControlCardDTO";
+import { USER_ROLE } from "@prisma/client";
+import { ControlCardEntity } from "../../../entity/controlCard/ControlCardEntity";
 
 export class PracticumHandlerImpl extends PracticumHandler {
   private practicumService: PracticumService;
@@ -29,6 +36,7 @@ export class PracticumHandlerImpl extends PracticumHandler {
   private schemaValidator: SchemaValidator;
   private assistanceGroupService: AssistanceGroupService;
   private practicumClassroomsAndAssistantsService: PracticumClassroomsAndAssistantsService;
+  private controlCardService: ControlCardService;
 
   constructor(
     service: {
@@ -36,6 +44,7 @@ export class PracticumHandlerImpl extends PracticumHandler {
       meetingService: MeetingService;
       practicumClassroomsAndAssistantsService: PracticumClassroomsAndAssistantsService;
       assistanceGroupService: AssistanceGroupService;
+      controlCardService: ControlCardService;
     },
     schemaValidator: SchemaValidator
   ) {
@@ -45,7 +54,65 @@ export class PracticumHandlerImpl extends PracticumHandler {
       service.practicumClassroomsAndAssistantsService;
     this.meetingService = service.meetingService;
     this.assistanceGroupService = service.assistanceGroupService;
+    this.controlCardService = service.controlCardService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async getStudentPracticumControlCards(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId, id } = req.params;
+    const { profileId, userRole } = getTokenPayload(res);
+
+    try {
+      let card: ControlCardEntity[] = [];
+
+      if (userRole === USER_ROLE.ASSISTANT) {
+        card =
+          await this.controlCardService.getControlCardsByPracticumAndGroupMentor(
+            practicumId,
+            id,
+            profileId
+          );
+      } else {
+        card =
+          await this.controlCardService.getControlCardsByPracticumIdAndProfileId(
+            practicumId,
+            id
+          );
+      }
+
+      return res
+        .status(200)
+        .json(
+          createResponse(RESPONSE_MESSAGE.SUCCESS, card.map(ListControlCardDTO))
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getPracticumControlCards(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { profileId } = getTokenPayload(res);
+    const { practicumId } = req.params;
+
+    const cards =
+      await this.controlCardService.getControlCardsByPracticumIdAndProfileId(
+        practicumId,
+        profileId
+      );
+
+    return res
+      .status(200)
+      .json(
+        createResponse(RESPONSE_MESSAGE.SUCCESS, cards.map(ListControlCardDTO))
+      );
   }
 
   async getPracticumAssistanceGroups(
@@ -56,9 +123,7 @@ export class PracticumHandlerImpl extends PracticumHandler {
     try {
       return res
         .status(200)
-        .json(
-          createResponse(RESPONSE_MESSAGE.SUCCESS, res.locals)
-        );
+        .json(createResponse(RESPONSE_MESSAGE.SUCCESS, res.locals));
     } catch (error) {
       return next(error);
     }
@@ -251,16 +316,9 @@ export class PracticumHandlerImpl extends PracticumHandler {
     res: Response<any, Record<string, any>>,
     next: NextFunction
   ): Promise<any> {
-    const practicums = await this.practicumService.getPracticums();
-
     return res
       .status(200)
-      .json(
-        createResponse(
-          RESPONSE_MESSAGE.SUCCESS,
-          practicums.map(ListPracticumDTO)
-        )
-      );
+      .json(createResponse(RESPONSE_MESSAGE.SUCCESS, res.locals));
   }
 
   async postPracticum(

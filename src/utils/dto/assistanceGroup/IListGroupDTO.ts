@@ -1,3 +1,4 @@
+import { constants } from "../..";
 import { AssistanceGroupEntity } from "../../../entity/assistanceGroup/AssistanceGroupEntity";
 
 interface IListGroupDTO {
@@ -27,7 +28,7 @@ export const ListGroupDTO = (group: AssistanceGroupEntity) => {
     id: group.id,
     number: group.number,
     practicum: {
-      badge: group.practicum?.badge,
+      badge: constants.GCS_OBJECT_BASE(group.practicum?.badge),
       classroomsCount: group.practicum?.classroomsLength,
       course: group.practicum?.course,
       id: group.practicumId,
@@ -38,7 +39,7 @@ export const ListGroupDTO = (group: AssistanceGroupEntity) => {
       fullname: s.fullname,
       id: s.id,
       nickname: s.nickname,
-      profilePic: s.profilePic,
+      profilePic: constants.GCS_OBJECT_BASE(s.profilePic),
       username: s.username,
     })),
   } as IListGroupDTO;

@@ -14,4 +14,7 @@ export const CONFIG_ENV = {
     expiresIn: constants.ACCESS_TOKEN_EXP,
     issuer: process.env.ISSUER,
   },
+  GCP_PUB_SUB_PROJECTID: process.env.GCP_PUB_SUB_PROJECTID ?? "",
+  GCP_PUB_SUB_TOPICID: process.env.GCP_PUB_SUB_TOPICID ?? "",
+  GCP_PUB_SUB_SUBSCRIPTIONID: process.env.GCP_PUB_SUB_SUBSCRIPTIONID ?? "",
 };

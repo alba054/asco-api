@@ -11,6 +11,9 @@ interface IClassroomDTO {
   students: {
     fullname: string;
     username: string;
+    nickname: string;
+    classOf: string;
+    profilePic: string;
   }[];
 }
 
@@ -25,6 +28,9 @@ export const ClassroomDTO = (classroom: ClassroomEntity) => {
     students: classroom.students.map((s) => ({
       fullname: s.fullname,
       username: s.username,
+      nickname: s.nickname,
+      classOf: s.classOf,
+      profilePic: !s.profilePic ? null : s.profilePic,
     })),
   } as IClassroomDTO;
 };

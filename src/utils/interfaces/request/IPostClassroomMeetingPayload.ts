@@ -6,4 +6,5 @@ export interface IPostClassroomMeetingPayload {
   readonly coAssistant?: string;
   readonly module?: string;
   readonly assignment?: string;
+  readonly assistanceDeadline?: number;
 }

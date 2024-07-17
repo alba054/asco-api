@@ -16,19 +16,24 @@ import { MeetingService } from "../../../services/meeting/MeetingService";
 import { ITokenPayload } from "../../../utils/interfaces/ITokenPayload";
 import { ListClassroomDTO } from "../../../utils/dto/classroom/IListClassroomDTO";
 import { ListMeetingDTO } from "../../../utils/dto/meeting/IListMeetingDTO";
+import { ClassroomPracticumStudentsService } from "../../../services/facade/classroomPracticumStudents/ClassroomPracticumStudentsService";
 
 export class ClassroomHandlerImpl extends ClassRoomHandler {
   private classroomService: ClassroomService;
+  private classroomPracticumStudentsService: ClassroomPracticumStudentsService;
   private schemaValidator: SchemaValidator;
 
   constructor(
     service: {
+      classroomPracticumStudentsService: ClassroomPracticumStudentsService;
       classroomService: ClassroomService;
       meetingService: MeetingService;
     },
     schemaValidator: SchemaValidator
   ) {
     super();
+    this.classroomPracticumStudentsService =
+      service.classroomPracticumStudentsService;
     this.classroomService = service.classroomService;
     this.schemaValidator = schemaValidator;
   }
@@ -155,7 +160,10 @@ export class ClassroomHandlerImpl extends ClassRoomHandler {
         payload,
       });
 
-      await this.classroomService.addStudentToClassroom(classroomId, payload);
+      await this.classroomPracticumStudentsService.addStudentToClassroom(
+        classroomId,
+        payload
+      );
 
       return res
         .status(201)

@@ -11,6 +11,14 @@ export class PracticumServiceImpl extends PracticumService {
     super(repository);
   }
 
+  async getpracticumsByParticipants(
+    profileId: string
+  ): Promise<PracticumEntity[]> {
+    return await this.practicumRepository.getPracticumsByParticipantId(
+      profileId
+    );
+  }
+
   async deletePracticumById(practicumId: string): Promise<void> {
     const practicum = await this.practicumRepository.getPracticumById(
       practicumId
@@ -47,6 +55,7 @@ export class PracticumServiceImpl extends PracticumService {
         id: practicumId,
         badge: payload.badge,
         courseContract: payload.courseContract,
+        examInfo: payload.examInfo,
       }
     );
 
@@ -76,6 +85,7 @@ export class PracticumServiceImpl extends PracticumService {
     const practicum = new PracticumEntity(payload.course, {
       badge: payload.badge,
       courseContract: payload.courseContract,
+      examInfo: payload.examInfo,
     });
 
     return await this.practicumRepository.createPracticum(practicum);

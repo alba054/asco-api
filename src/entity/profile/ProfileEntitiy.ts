@@ -22,6 +22,7 @@
 //   scores                   Score[]
 //   LabExamScore             LabExamScore[]
 
+import { PracticumEntity } from "../practicum/PracticumEntity";
 import { UserEntity } from "../user/UserEntity";
 
 export class ProfileEntity {
@@ -35,6 +36,7 @@ export class ProfileEntity {
   private _profilePic?: string | undefined;
   private _userId?: string | undefined;
   private _user?: UserEntity | undefined;
+  private _practicums?: PracticumEntity[] | undefined;
 
   constructor(
     username: string,
@@ -48,6 +50,7 @@ export class ProfileEntity {
       instagramUsername?: string | undefined;
       profilePic?: string | undefined;
       user?: UserEntity | undefined;
+      practicums?: PracticumEntity[];
     }
   ) {
     this.user = args?.user;
@@ -60,6 +63,14 @@ export class ProfileEntity {
     this.instagramUsername = args?.instagramUsername;
     this.profilePic = args?.profilePic;
     this.id = args?.id;
+    this.practicums = args?.practicums;
+  }
+
+  public get practicums(): PracticumEntity[] | undefined {
+    return this._practicums;
+  }
+  public set practicums(value: PracticumEntity[] | undefined) {
+    this._practicums = value;
   }
 
   public get user(): UserEntity | undefined {

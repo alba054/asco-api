@@ -106,6 +106,7 @@ export class BasicAuthMiddleware {
             username: user.username,
             userId: user.id,
             userRole: user.role,
+            profileId: user.profile?.id,
           } as ITokenPayload);
 
           next();

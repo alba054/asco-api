@@ -135,6 +135,14 @@ export class MeetingPrismaRepositoryImpl extends MeetingRepository {
           select: {
             course: true,
             id: true,
+            participants: {
+              select: {
+                username: true,
+                fullname: true,
+                nickname: true,
+                classOf: true,
+              },
+            },
           },
         },
       },
@@ -154,6 +162,7 @@ export class MeetingPrismaRepositoryImpl extends MeetingRepository {
         assistantId: meeting.assistantId,
         coAssistantId: meeting.coAssistantId ?? "",
         module: meeting.module ?? "",
+        assignment: meeting.assignment ?? "",
         practicumId: meeting.practicumId,
         assistant: new ProfileEntity(
           meeting.assistant.username,
@@ -169,6 +178,14 @@ export class MeetingPrismaRepositoryImpl extends MeetingRepository {
         ),
         practicum: new PracticumEntity(meeting.practicum.course, {
           id: meeting.practicumId,
+          participants: meeting.practicum.participants.map((p) => {
+            return new ProfileEntity(
+              p.username,
+              p.fullname,
+              p.nickname,
+              p.classOf
+            );
+          }),
         }),
       }
     );

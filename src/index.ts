@@ -2,6 +2,10 @@ import { AssistanceGroupHandlerImpl } from "./api/assistanceGroup/handler/Assist
 import { AssistanceGroupRouterImpl } from "./api/assistanceGroup/router/AssistanceGroupRouter";
 import { ClassroomHandlerImpl } from "./api/classroom/handler/ClassroomHandlerImpl";
 import { ClassroomRouter } from "./api/classroom/router/ClassroomRouterImpl";
+import { ControlCardHandlerImpl } from "./api/controlCard/handler/ControlCardHandlerImpl";
+import { ControlCardRouter } from "./api/controlCard/router/ControlCardRouterImpl";
+import { FileHandlerImpl } from "./api/file/handler/FileHandlerImpl";
+import { FileRouterImpl } from "./api/file/router/FileRouterImpl";
 import { MeetingHandlerImpl } from "./api/meeting/handler/MeetingHandlerImpl";
 import { MeetingRouter } from "./api/meeting/router/MeetingRouterImpl";
 import { PracticumHandlerImpl } from "./api/practicum/handler/PracticumHandlerImpl";
@@ -12,13 +16,17 @@ import { hashImpl } from "./config/crypto";
 import connectDatabase from "./config/database";
 import { prismaDb } from "./config/database/PrismaORMDBConfig";
 import { startServer } from "./config/express";
+import { publisher } from "./config/messaging";
 import { GetMeetingMiddleware } from "./middleware/api/GetMeetingMiddleware";
 import { GetPracticumAssistanceGroupMiddleware } from "./middleware/api/GetPracticumAssistanceGroupMiddleware";
 import { GetPracticumMeetingsMiddleware } from "./middleware/api/GetPracticumMeetingMiddleware";
+import { GetPracticumsMiddleware } from "./middleware/api/GetPracticumsMiddleware";
 import { AuthorizationBearer } from "./middleware/auth/AuthorizationBearer";
 import { BasicAuthMiddleware } from "./middleware/auth/BasicAuth";
 import { AssistanceGroupPrismaRepositoryImpl } from "./repository/assistanceGroup/AssistanceGroupPrismaRepositoryImpl";
 import { ClassroomPrismaRepositoryImpl } from "./repository/classroom/ClassroomPrismaRepositoryImpl";
+import { ControlCardPrismaRepositoryImpl } from "./repository/controlCard/ControlCardPrismaRepositoryImpl";
+import { ClassroomPracticumStudentsPrismaRepositoryImpl } from "./repository/facade/classroomPracticumStudents/ClassroomPracticumStudentsPrismaRepositoryImpl";
 import { PracticumClassroomsAndAssistantsPrismaRepository } from "./repository/facade/practicumClassroomsAndAssistantsRepository/PracticumClassroomsAndAssistantsPrismaRepository";
 import { MeetingPrismaRepositoryImpl } from "./repository/meeting/MeetingPrismaRepositoryImpl";
 import { PracticumPrismaRepositoryImpl } from "./repository/practicum/PracticumPrismaRepositoryImpl";
@@ -27,6 +35,8 @@ import { UserPrismaRepositoryImpl } from "./repository/user/UserPrismaRepository
 import { AssistanceGroupServiceImpl } from "./services/assistanceGroup/AssistanceGroupServiceImpl";
 import { AuthServiceImpl } from "./services/auth/AuthServiceImpl";
 import { ClassroomServiceImpl } from "./services/classroom/ClassroomServiceImpl";
+import { ControlCardServiceImpl } from "./services/controlCard/ControlCardServiceImpl";
+import { ClassroomPracticumStudentsServiceImpl } from "./services/facade/classroomPracticumStudents/ClassroomPracticumStudentsServiceImpl";
 import { PracticumClassroomsAndAssistantsServiceImpl } from "./services/facade/practicumClassroomsAndAssistantsService/PracticumClassroomsAndAssistantsServiceImpl";
 import { MeetingServiceImpl } from "./services/meeting/MeetingServiceImpl";
 import { PracticumServiceImpl } from "./services/practicum/PracticumServiceImpl";
@@ -43,6 +53,9 @@ const practicumClassroomsAndAssistantsRepository =
 const classroomRepository = new ClassroomPrismaRepositoryImpl();
 const meetingRepository = new MeetingPrismaRepositoryImpl();
 const assistanceGroupRepository = new AssistanceGroupPrismaRepositoryImpl();
+const controlCardRepository = new ControlCardPrismaRepositoryImpl();
+const classroomPracticumStudentsRepository =
+  new ClassroomPracticumStudentsPrismaRepositoryImpl();
 // * services
 const userService = new UserServiceImpl({ userRepository });
 const authService = new AuthServiceImpl();
@@ -63,10 +76,23 @@ const meetingService = new MeetingServiceImpl({
   meetingRepository,
   practicumRepository,
 });
-const assistanceGroupService = new AssistanceGroupServiceImpl({
+const assistanceGroupService = new AssistanceGroupServiceImpl(
+  {
+    practicumRepository,
+    assistanceGroupRepository,
+  },
+  publisher.googlePubSub
+);
+const controlCardService = new ControlCardServiceImpl({
   practicumRepository,
-  assistanceGroupRepository,
+  controlCardRepository,
 });
+const classroomPracticumStudentsService =
+  new ClassroomPracticumStudentsServiceImpl({
+    userRepository,
+    classroomRepository,
+    classroomPracticumStudentsRepository,
+  });
 // * validators
 const schemaValidator = new JoiValidatorImpl();
 // * handlers
@@ -80,11 +106,16 @@ const practicumHandler = new PracticumHandlerImpl(
     practicumClassroomsAndAssistantsService,
     meetingService,
     assistanceGroupService,
+    controlCardService,
   },
   schemaValidator
 );
 const ClassroomHandler = new ClassroomHandlerImpl(
-  { classroomService: classRoomService, meetingService },
+  {
+    classroomService: classRoomService,
+    meetingService,
+    classroomPracticumStudentsService,
+  },
   schemaValidator
 );
 const meetingHandler = new MeetingHandlerImpl(
@@ -97,6 +128,11 @@ const assistanceGroupHandler = new AssistanceGroupHandlerImpl(
   },
   schemaValidator
 );
+const fileHandler = new FileHandlerImpl();
+const controlCardHandler = new ControlCardHandlerImpl(
+  { controlCardService },
+  schemaValidator
+);
 // * middleware
 const basicAuthMiddleware = new BasicAuthMiddleware(userService, hashImpl);
 const authorizationMiddleware = new AuthorizationBearer(userService);
@@ -106,6 +142,7 @@ const getPracticumMeetingsMiddleware = new GetPracticumMeetingsMiddleware(
 const getMeetingMiddleware = new GetMeetingMiddleware(meetingService);
 const getPracticumAssistanceGroupMiddleware =
   new GetPracticumAssistanceGroupMiddleware(assistanceGroupService);
+const getPracticumsMiddleware = new GetPracticumsMiddleware(practicumService);
 // * routers
 const userRouter = new UserRouterImpl(
   userHandler,
@@ -116,11 +153,11 @@ const practicumRouter = new PracticumRouterImpl(
   practicumHandler,
   authorizationMiddleware,
   getPracticumMeetingsMiddleware,
-  getPracticumAssistanceGroupMiddleware
+  getPracticumAssistanceGroupMiddleware,
+  getPracticumsMiddleware
 );
 const classRoomRouter = new ClassroomRouter(
   ClassroomHandler,
-  basicAuthMiddleware,
   authorizationMiddleware
 );
 const meetingRouter = new MeetingRouter(
@@ -132,6 +169,11 @@ const assistanceGroupRouter = new AssistanceGroupRouterImpl(
   assistanceGroupHandler,
   authorizationMiddleware
 );
+const fileRouter = new FileRouterImpl(fileHandler, authorizationMiddleware);
+const cardRouter = new ControlCardRouter(
+  controlCardHandler,
+  authorizationMiddleware
+);
 
 connectDatabase(prismaDb);
 
@@ -141,4 +183,6 @@ startServer([
   classRoomRouter,
   meetingRouter,
   assistanceGroupRouter,
+  fileRouter,
+  cardRouter,
 ]).start();

@@ -8,8 +8,63 @@ import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 import { UserEntity } from "../../entity/user/UserEntity";
 import { ClassroomEntity } from "../../entity/classroom/ClassroomEntity";
+import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
 
 export class PracticumPrismaRepositoryImpl extends PracticumRepository {
+  async getPracticumsByParticipantId(
+    profileId: string
+  ): Promise<PracticumEntity[]> {
+    const practicums = await prismaDb.db?.practicum.findMany({
+      where: {
+        participants: {
+          some: {
+            id: profileId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        course: true,
+        badge: true,
+        _count: {
+          select: {
+            classrooms: true,
+            meetings: true,
+          },
+        },
+        classrooms: {
+          include: {
+            _count: { select: { students: true } },
+          },
+        },
+      },
+    });
+
+    return (
+      practicums?.map((p) => {
+        return new PracticumEntity(p.course, {
+          badge: p.badge ?? "",
+          id: p.id,
+          classroomsLength: p._count.classrooms,
+          meetingsLength: p._count.meetings,
+          classrooms: p.classrooms.map((c) => {
+            return new ClassroomEntity(
+              c.name,
+              c.meetingDay,
+              c.startTime,
+              c.endTime,
+              {
+                id: c.id,
+                practicumId: c.practicumId,
+                studentsCount: c._count.students,
+              }
+            );
+          }),
+        });
+      }) ?? []
+    );
+  }
+
   async deletePracticumById(practicumId: string): Promise<void> {
     try {
       await prismaDb.db?.practicum.delete({ where: { id: practicumId } });
@@ -35,6 +90,7 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
             practicumEntity.course === "" ? undefined : practicumEntity.course,
           badge: practicumEntity.badge,
           courseContract: practicumEntity.courseContract,
+          examInfo: practicumEntity.examInfo,
         },
       });
 
@@ -55,6 +111,7 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
       where: { id: practicumId },
       include: {
         classrooms: true,
+        meetings: true,
         participants: {
           include: {
             user: true,
@@ -62,6 +119,10 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
         },
       },
     });
+
+    if (!practicum) {
+      return null;
+    }
 
     return new PracticumEntity(practicum?.course ?? "", {
       classrooms: practicum?.classrooms.map((c) => {
@@ -76,6 +137,16 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
           }
         );
       }),
+      meetings: practicum.meetings.map((m) => {
+        return new MeetingEntity(
+          m.number,
+          m.lesson,
+          Number(m.meetingDate),
+          Number(m.assistanceDeadline),
+          { id: m.id }
+        );
+      }),
+      examInfo: practicum.examInfo ?? undefined,
       badge: practicum?.badge ?? "",
       classroomsLength: practicum?.classrooms.length,
       courseContract: practicum?.courseContract ?? "",
@@ -108,6 +179,12 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
         _count: {
           select: {
             classrooms: true,
+            meetings: true,
+          },
+        },
+        classrooms: {
+          include: {
+            _count: { select: { students: true } },
           },
         },
       },
@@ -118,6 +195,21 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
         return new PracticumEntity(p.course, {
           badge: p.badge ?? "",
           id: p.id,
+          classroomsLength: p._count.classrooms,
+          meetingsLength: p._count.meetings,
+          classrooms: p.classrooms.map((c) => {
+            return new ClassroomEntity(
+              c.name,
+              c.meetingDay,
+              c.startTime,
+              c.endTime,
+              {
+                id: c.id,
+                practicumId: c.practicumId,
+                studentsCount: c._count.students,
+              }
+            );
+          }),
         });
       }) ?? []
     );
@@ -130,6 +222,7 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
           course: practicum.course,
           badge: practicum.badge,
           courseContract: practicum.courseContract,
+          examInfo: practicum.examInfo,
         },
       });
 

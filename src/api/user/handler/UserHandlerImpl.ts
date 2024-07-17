@@ -89,9 +89,9 @@ export class UserHandlerImpl extends UserHandler {
     res: Response<any, Record<string, any>>,
     next: NextFunction
   ): Promise<any> {
-    const { s, role } = req.query;
+    const { s, role, practicum } = req.query;
 
-    const users = await this.profileService.getProfiles(String(s), role);
+    const users = await this.profileService.getProfiles(s, role, practicum);
 
     return res
       .status(200)

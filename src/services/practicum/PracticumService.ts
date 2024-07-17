@@ -10,6 +10,10 @@ export abstract class PracticumService {
     this.practicumRepository = repository.practicumRepository;
   }
 
+  abstract getpracticumsByParticipants(
+    profileId: string
+  ): Promise<PracticumEntity[]>;
+
   abstract deletePracticumById(practicumId: string): Promise<void>;
 
   abstract updatePracticumById(

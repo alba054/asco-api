@@ -1,4 +1,3 @@
-import { USER_ROLE } from "@prisma/client";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 import { ProfileRepository } from "../../repository/profile/ProfileRepository";
 
@@ -10,8 +9,9 @@ export abstract class ProfileService {
   }
 
   abstract getProfiles(
-    s?: string | undefined,
-    role?: any
+    s?: any,
+    role?: any,
+    practicum?: any
   ): Promise<ProfileEntity[]>;
 
   abstract getProfileByUsername(username: string): Promise<ProfileEntity>;

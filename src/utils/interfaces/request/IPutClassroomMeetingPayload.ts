@@ -6,4 +6,5 @@ export interface IPutClassroomMeetingPayload {
   readonly coAssistant?: string;
   readonly module?: string;
   readonly assignment?: string;
+  readonly assistanceDeadline?: number;
 }
