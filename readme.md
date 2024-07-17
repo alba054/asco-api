@@ -22,6 +22,6 @@ untuk menambahkan data student pada database
 
 ## DEV LOG <17 July 2024>
 
-1. /api/practicums/{practicumId}/students/{studentProfileId}/cards -> get student control cards based on the practicum (authorized for assistant and admin)
-2. /api/cards/{controlCardId} -> get control card detail (authorized for assistant and student)
-3. /api/practicums/{practicumId}/cards -> get student own control cards (authorized for student)
+1. (practicums.getPracticumStudentCards) /api/practicums/{practicumId}/students/{studentProfileId}/cards -> get student control cards based on the practicum (authorized for assistant and admin)
+2. (practicums.getStudentPracticumControlCards) /api/cards/{controlCardId} -> get control card detail (authorized for assistant and student)
+3. (cards.getControlCardDetail) /api/practicums/{practicumId}/cards -> get student own control cards (authorized for student)
