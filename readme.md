@@ -32,3 +32,4 @@ untuk menambahkan data student pada database
 2. (meetings.addAttendanceForStudentInAMeeting) /api/meetings/{meetingId}/attendances -> post attendances based on the meeting
 3. (practicums.getPracticumAttendancesForStudent) /api/practicums/{practicumId}/attendances -> get student own attendances (authorized for student)
 4. (attendances.deleteAttendanceById) /api/attendances/{attendanceId} -> delete attendance by id (authorized for assistant and admin)
+5. (users.getUserInfoByAdminAndAssistant) /api/users/{username} -> get user info (authorized for assistant and admin)

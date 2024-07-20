@@ -69,6 +69,13 @@ export class UserRouterImpl extends BaseRouter {
       .put(
         this.authorizationMiddlware.authorize([USER_ROLE.ADMIN]),
         this.handler.putUser
+      )
+      .get(
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ADMIN,
+          USER_ROLE.ASSISTANT,
+        ]),
+        this.handler.getUserInfo
       );
 
     return this.router;

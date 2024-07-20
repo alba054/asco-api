@@ -41,6 +41,24 @@ export class UserHandlerImpl extends UserHandler {
     this.schemaValidator = schemaValidator;
   }
 
+  async getUserInfo(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { username } = req.params;
+
+    try {
+      const user = await this.profileService.getProfileByUsername(username);
+
+      return res
+        .status(200)
+        .json(createResponse(RESPONSE_MESSAGE.SUCCESS, ProfileDTO(user)));
+    } catch (error) {
+      return next(error);
+    }
+  }
+
   async putUser(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>,
