@@ -18,7 +18,22 @@ export abstract class PracticumHandler {
     this.getPracticumControlCards = this.getPracticumControlCards.bind(this);
     this.getStudentPracticumControlCards =
       this.getStudentPracticumControlCards.bind(this);
+    this.getPracticumAttendances = this.getPracticumAttendances.bind(this);
+    this.getStudentPracticumAttendances =
+      this.getStudentPracticumAttendances.bind(this);
   }
+
+  abstract getStudentPracticumAttendances(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
+
+  abstract getPracticumAttendances(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract getStudentPracticumControlCards(
     req: Request,

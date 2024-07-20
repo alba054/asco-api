@@ -9,12 +9,14 @@ import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 import { ClassroomEntity } from "../../entity/classroom/ClassroomEntity";
 import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
 import { MeetingRepository } from "../../repository/meeting/MeetingRepository";
+import { ClassroomPracticumRepository } from "../../repository/facade/classroomPracticumRepository/ClassroomPracticumRepository";
 
 export class ClassroomServiceImpl extends ClassroomService {
   constructor(repository: {
     classroomRepository: ClassRoomRepository;
     userRepository: UserRepository;
     meetingRepository: MeetingRepository;
+    classroomPracticumRepository: ClassroomPracticumRepository;
   }) {
     super(repository);
   }
@@ -89,8 +91,9 @@ export class ClassroomServiceImpl extends ClassroomService {
       );
     }
 
-    await this.classroomRepository.removeStudentFromClassroom(
+    await this.classroomPracticumRepository.removeStudentFromPracticumAndClassroom(
       classroomId,
+      classroom.practicumId,
       username
     );
   }

@@ -17,6 +17,7 @@
 // controlCards       ControlCard[]
 // scores             Score[]
 
+import { AttendanceEntity } from "../attendance/AttendanceEntity";
 import { PracticumEntity } from "../practicum/PracticumEntity";
 import { ProfileEntity } from "../profile/ProfileEntitiy";
 
@@ -34,6 +35,7 @@ export class MeetingEntity {
   private _assistanceDeadline: number;
   private _practicum?: PracticumEntity | undefined;
   private _practicumId?: string | undefined;
+  private _attendances?: AttendanceEntity[] | undefined;
 
   constructor(
     number: number,
@@ -50,6 +52,7 @@ export class MeetingEntity {
       practicumId?: string;
       module?: string;
       assignment?: string;
+      attendances?: AttendanceEntity[];
     }
   ) {
     this._number = number;
@@ -65,6 +68,14 @@ export class MeetingEntity {
     this.assignment = args?.assignment;
     this.practicum = args?.practicum;
     this.practicumId = args?.practicumId;
+    this.attendances = args?.attendances;
+  }
+
+  public get attendances(): AttendanceEntity[] | undefined {
+    return this._attendances;
+  }
+  public set attendances(value: AttendanceEntity[] | undefined) {
+    this._attendances = value;
   }
 
   public get assignment(): string | undefined {

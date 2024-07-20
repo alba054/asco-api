@@ -25,3 +25,10 @@ untuk menambahkan data student pada database
 1. (practicums.getPracticumStudentCards) /api/practicums/{practicumId}/students/{studentProfileId}/cards -> get student control cards based on the practicum (authorized for assistant and admin)
 2. (practicums.getStudentPracticumControlCards) /api/cards/{controlCardId} -> get control card detail (authorized for assistant and student)
 3. (cards.getControlCardDetail) /api/practicums/{practicumId}/cards -> get student own control cards (authorized for student)
+
+## DEV LOG <20 July 2024>
+
+1. (practicums.getStudentPracticumAttendancesByAdminAndAssistant) /api/practicums/{practicumId}/students/{studentProfileId}/attendances -> get student attendances based on the practicum (authorized for assistant and admin)
+2. (meetings.addAttendanceForStudentInAMeeting) /api/meetings/{meetingId}/attendances -> post attendances based on the meeting
+3. (practicums.getPracticumAttendancesForStudent) /api/practicums/{practicumId}/attendances -> get student own attendances (authorized for student)
+4. (attendances.deleteAttendanceById) /api/attendances/{attendanceId} -> delete attendance by id (authorized for assistant and admin)

@@ -65,6 +65,7 @@ model Practicum {
   assistantGroups AssistantGroup[]
   LabExamScore    LabExamScore[]
   ControlCard     ControlCard[]
+  Attendance      Attendance[]
 
   @@map("practicums")
 }
@@ -112,7 +113,7 @@ model Meeting {
 
 model Attendance {
   id               String            @id @default(uuid())
-  classroom        Classroom         @relation(fields: [classroomId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  classroom        Classroom?        @relation(fields: [classroomId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   meeting          Meeting           @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   student          Profile           @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   attendanceStatus ATTENDANCE_STATUS @default(ABSENT)
@@ -121,42 +122,47 @@ model Attendance {
   note             String?           @db.Text
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @default(now()) @updatedAt
-  classroomId      String
+  classroomId      String?
   meetingId        String
   profileId        String
+  practicum        Practicum         @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  practicumId      String
 
   @@map("attendances")
 }
 
 model AssistantGroup {
-  id             String    @id @default(uuid())
-  number         Int       @db.UnsignedSmallInt
-  assistant      Profile   @relation(name: "assistant_group_assistant", fields: [assistantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  students       Profile[] @relation(name: "assistant_group_student")
-  practicum      Practicum @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  githubRepoLink String?   @db.VarChar(255)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now()) @updatedAt
+  id             String        @id @default(uuid())
+  number         Int           @db.UnsignedSmallInt
+  assistant      Profile       @relation(name: "assistant_group_assistant", fields: [assistantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  students       Profile[]     @relation(name: "assistant_group_student")
+  practicum      Practicum     @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  githubRepoLink String?       @db.VarChar(255)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @default(now()) @updatedAt
   assistantId    String
   practicumId    String
+  ControlCard    ControlCard[]
 
   @@map("assistant_groups")
 }
 
 model ControlCard {
-  id                 String      @id @default(uuid())
-  student            Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  meeting            Meeting     @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  firstAssistance    Assistance? @relation(name: "control_card_first_assistance", fields: [firstAssistanceId], references: [id])
-  secondAssistance   Assistance? @relation(name: "control_card_second_assistance", fields: [secondAssistanceId], references: [id])
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @default(now()) @updatedAt
+  id                 String          @id @default(uuid())
+  student            Profile         @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  meeting            Meeting         @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  firstAssistance    Assistance?     @relation(name: "control_card_first_assistance", fields: [firstAssistanceId], references: [id])
+  secondAssistance   Assistance?     @relation(name: "control_card_second_assistance", fields: [secondAssistanceId], references: [id])
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @default(now()) @updatedAt
   profileId          String
   meetingId          String
-  firstAssistanceId  String?     @unique
-  secondAssistanceId String?     @unique
-  practicum          Practicum?  @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  firstAssistanceId  String?         @unique
+  secondAssistanceId String?         @unique
+  practicum          Practicum?      @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   practicumId        String?
+  group              AssistantGroup? @relation(fields: [assistantGroupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  assistantGroupId   String?
 
   @@map("control_cards")
 }

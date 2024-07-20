@@ -121,6 +121,7 @@ export class MeetingPrismaRepositoryImpl extends MeetingRepository {
             nickname: true,
             fullname: true,
             username: true,
+            id: true,
           },
         },
         coAssistant: {
@@ -129,6 +130,7 @@ export class MeetingPrismaRepositoryImpl extends MeetingRepository {
             nickname: true,
             fullname: true,
             username: true,
+            id: true,
           },
         },
         practicum: {
@@ -141,6 +143,7 @@ export class MeetingPrismaRepositoryImpl extends MeetingRepository {
                 fullname: true,
                 nickname: true,
                 classOf: true,
+                id: true,
               },
             },
           },
@@ -168,13 +171,15 @@ export class MeetingPrismaRepositoryImpl extends MeetingRepository {
           meeting.assistant.username,
           meeting.assistant.fullname,
           meeting.assistant.nickname,
-          meeting.assistant.classOf
+          meeting.assistant.classOf,
+          { id: meeting.assistant.id }
         ),
         coAssistant: new ProfileEntity(
           meeting.coAssistant?.username ?? "",
           meeting.coAssistant?.fullname ?? "",
           meeting.coAssistant?.nickname ?? "",
-          meeting.coAssistant?.classOf ?? ""
+          meeting.coAssistant?.classOf ?? "",
+          { id: meeting.coAssistant?.id }
         ),
         practicum: new PracticumEntity(meeting.practicum.course, {
           id: meeting.practicumId,
@@ -183,7 +188,8 @@ export class MeetingPrismaRepositoryImpl extends MeetingRepository {
               p.username,
               p.fullname,
               p.nickname,
-              p.classOf
+              p.classOf,
+              { id: p.id }
             );
           }),
         }),

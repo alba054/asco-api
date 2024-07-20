@@ -19,5 +19,5 @@ export abstract class AssistanceGroupRepository {
     practicumId: string
   ): Promise<AssistanceGroupEntity[]>;
 
-  abstract addGroup(group: AssistanceGroupEntity): Promise<void | boolean>;
+  abstract addGroup(group: AssistanceGroupEntity): Promise<string | undefined>;
 }

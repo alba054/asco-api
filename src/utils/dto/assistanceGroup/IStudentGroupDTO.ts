@@ -2,6 +2,7 @@ import { constants } from "../..";
 import { AssistanceGroupEntity } from "../../../entity/assistanceGroup/AssistanceGroupEntity";
 
 interface IStudentGroupDTO {
+  githubRepoLink: string;
   practicum: {
     id: string;
     course: string;
@@ -29,6 +30,7 @@ interface IStudentGroupDTO {
 
 export const StudentGroupDTO = (group: AssistanceGroupEntity | null) => {
   return {
+    githubRepoLink: group?.githubRepoLink ?? null,
     assistant: {
       classOf: group?.assistant?.classOf,
       fullname: group?.assistant?.fullname,

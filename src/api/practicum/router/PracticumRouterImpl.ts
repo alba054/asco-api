@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { BasicAuthMiddleware } from "../../../middleware/auth/BasicAuth";
 import { AuthorizationBearer } from "../../../middleware/auth/AuthorizationBearer";
 import { BaseRouter } from "../../base/Router";
 import { USER_ROLE } from "@prisma/client";
@@ -112,6 +111,14 @@ export class PracticumRouterImpl extends BaseRouter {
         this.handler.getPracticumControlCards
       );
 
+    // * get student practicum attendances history
+    this.router
+      .route(this.path + "/:practicumId/attendances")
+      .get(
+        this.authorizationMiddlware.authorize([USER_ROLE.STUDENT]),
+        this.handler.getPracticumAttendances
+      );
+
     // * assign assistants and classrooms to practicum
     this.router
       .route(this.path + "/:practicumId/extras")
@@ -129,6 +136,17 @@ export class PracticumRouterImpl extends BaseRouter {
           USER_ROLE.ASSISTANT,
         ]),
         this.handler.getStudentPracticumControlCards
+      );
+
+    // * get student practicum attendances history by admin and assistant
+    this.router
+      .route(this.path + "/:practicumId/students/:id/attendances")
+      .get(
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ADMIN,
+          USER_ROLE.ASSISTANT,
+        ]),
+        this.handler.getStudentPracticumAttendances
       );
 
     return this.router;

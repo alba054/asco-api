@@ -12,20 +12,53 @@ import { MeetingHandler } from "./MeetingHandler";
 import { MeetingDTO } from "../../../utils/dto/meeting/IMeetingDTO";
 import { IPutClassroomMeetingPayload } from "../../../utils/interfaces/request/IPutClassroomMeetingPayload";
 import { PracticumMeetingPutPayloadSchema } from "../../../utils/validator/meeting/Joi/PracticumMeetingPutPayloadSchema";
+import { IPostMeetingAttendancePayload } from "../../../utils/interfaces/request/IPostMeetingAttendancePayload";
+import { MeetingAttendancePostPayloadSchema } from "../../../utils/validator/attendance/Joi/MeetingAttendancePostPayloadSchema";
+import { AttendanceService } from "../../../services/attendance/AttendanceService";
 
 export class MeetingHandlerImpl extends MeetingHandler {
   private meetingService: MeetingService;
+  private attendanceService: AttendanceService;
   private schemaValidator: SchemaValidator;
 
   constructor(
     service: {
       meetingService: MeetingService;
+      attendanceService: AttendanceService;
     },
     schemaValidator: SchemaValidator
   ) {
     super();
     this.meetingService = service.meetingService;
+    this.attendanceService = service.attendanceService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async postMeetingAttendance(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { id } = req.params;
+    const payload: IPostMeetingAttendancePayload = req.body;
+    const { profileId } = getTokenPayload(res);
+
+    try {
+      this.schemaValidator.validate({
+        schema: MeetingAttendancePostPayloadSchema,
+        payload,
+      });
+
+      await this.attendanceService.addAttendance(id, payload, profileId);
+
+      return res
+        .status(200)
+        .json(
+          createResponse(RESPONSE_MESSAGE.SUCCESS, "successfully edit meeting")
+        );
+    } catch (error) {
+      return next(error);
+    }
   }
 
   async putMeeting(

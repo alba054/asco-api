@@ -35,6 +35,7 @@ export class AssistanceGroupPrismaRepositoryImpl extends AssistanceGroupReposito
       },
       select: {
         id: true,
+        githubRepoLink: true,
         assistant: {
           select: {
             id: true,
@@ -84,6 +85,7 @@ export class AssistanceGroupPrismaRepositoryImpl extends AssistanceGroupReposito
               s.classOf
             );
           }),
+          githubRepoLink: g.githubRepoLink ?? "",
         });
       }) ?? []
     );
@@ -212,6 +214,7 @@ export class AssistanceGroupPrismaRepositoryImpl extends AssistanceGroupReposito
         practicumId,
       },
       select: {
+        githubRepoLink: true,
         id: true,
         assistant: {
           select: {
@@ -262,25 +265,27 @@ export class AssistanceGroupPrismaRepositoryImpl extends AssistanceGroupReposito
               s.classOf
             );
           }),
+          githubRepoLink: g.githubRepoLink ?? "",
         });
       }) ?? []
     );
   }
 
-  async addGroup(group: AssistanceGroupEntity): Promise<void | boolean> {
+  async addGroup(group: AssistanceGroupEntity): Promise<string | undefined> {
     try {
-      await prismaDb.db?.assistantGroup.create({
+      const inserted = await prismaDb.db?.assistantGroup.create({
         data: {
           number: group.number,
           assistantId: group.assistantId!,
           practicumId: group.practicumId!,
+          githubRepoLink: group.githubRepoLink,
           students: {
             connect: group.studentIds?.map((sid) => ({ id: sid })),
           },
         },
       });
 
-      return true;
+      return inserted?.id;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw new BadRequestError(ERRORCODE.BAD_REQUEST_ERROR, error.message);

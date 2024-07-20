@@ -104,3 +104,16 @@ export const formatHourMinuteSecond = (time: string): number => {
     parseInt(formattedTime.at(2) ?? "0")
   );
 };
+
+/**
+ *
+ * @param time date since epoch in seconds
+ * @return give a hh:mm in integer format
+ */
+export const convertDateToTimeInMinutes = (time: number): number => {
+  const date = new Date(time * 1000);
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+
+  return hour * 60 + minute;
+};

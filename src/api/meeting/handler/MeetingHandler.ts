@@ -5,7 +5,14 @@ export abstract class MeetingHandler {
     this.deleteMeeting = this.deleteMeeting.bind(this);
     this.getMeeting = this.getMeeting.bind(this);
     this.putMeeting = this.putMeeting.bind(this);
+    this.postMeetingAttendance = this.postMeetingAttendance.bind(this);
   }
+
+  abstract postMeetingAttendance(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract putMeeting(
     req: Request,

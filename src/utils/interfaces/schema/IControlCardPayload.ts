@@ -16,4 +16,5 @@ export interface IControlCardPayload {
   studentId?: string;
   meetings?: (string | undefined)[];
   practicumId?: string;
+  groupId?: string;
 }

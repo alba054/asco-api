@@ -136,6 +136,7 @@ export class AssistanceGroupServiceImpl extends AssistanceGroupService {
     const group = new AssistanceGroupEntity(payload.number, {
       assistantId: payload.mentor,
       studentIds: payload.mentees,
+      githubRepoLink: payload.githubRepositoryUrl,
       practicumId,
     });
 
@@ -146,6 +147,7 @@ export class AssistanceGroupServiceImpl extends AssistanceGroupService {
         studentId: d,
         practicumId: practicumId,
         meetings: practicum.meetings.map((m) => m.id),
+        groupId: groupPostState,
       }));
 
     if (groupPostState) {

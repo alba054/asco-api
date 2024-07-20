@@ -11,7 +11,6 @@ import { ParsedQs } from "qs";
 import { PracticumService } from "../../../services/practicum/PracticumService";
 import { IPostPracticumPayload } from "../../../utils/interfaces/request/IPostPracticumPayload";
 import { PracticumPostPayloadSchema } from "../../../utils/validator/practicum/Joi/PracticumPostPayloadSchema";
-import { ListPracticumDTO } from "../../../utils/dto/practicum/IListPracticumDTO";
 import { PracticumDTO } from "../../../utils/dto/practicum/IPracticumDTO";
 import { IPutPracticumPayload } from "../../../utils/interfaces/request/IPutPracticumPayload";
 import { PracticumPutPayloadSchema } from "../../../utils/validator/practicum/Joi/PracticumPutPayloadSchema";
@@ -29,6 +28,8 @@ import { ControlCardService } from "../../../services/controlCard/ControlCardSer
 import { ListControlCardDTO } from "../../../utils/dto/controlCard/IListControlCardDTO";
 import { USER_ROLE } from "@prisma/client";
 import { ControlCardEntity } from "../../../entity/controlCard/ControlCardEntity";
+import { ListAttendanceDTO } from "../../../utils/dto/attendances/IListAttendanceDTO";
+import { AttendanceService } from "../../../services/attendance/AttendanceService";
 
 export class PracticumHandlerImpl extends PracticumHandler {
   private practicumService: PracticumService;
@@ -37,6 +38,7 @@ export class PracticumHandlerImpl extends PracticumHandler {
   private assistanceGroupService: AssistanceGroupService;
   private practicumClassroomsAndAssistantsService: PracticumClassroomsAndAssistantsService;
   private controlCardService: ControlCardService;
+  private attendanceService: AttendanceService;
 
   constructor(
     service: {
@@ -45,6 +47,7 @@ export class PracticumHandlerImpl extends PracticumHandler {
       practicumClassroomsAndAssistantsService: PracticumClassroomsAndAssistantsService;
       assistanceGroupService: AssistanceGroupService;
       controlCardService: ControlCardService;
+      attendanceService: AttendanceService;
     },
     schemaValidator: SchemaValidator
   ) {
@@ -55,7 +58,59 @@ export class PracticumHandlerImpl extends PracticumHandler {
     this.meetingService = service.meetingService;
     this.assistanceGroupService = service.assistanceGroupService;
     this.controlCardService = service.controlCardService;
+    this.attendanceService = service.attendanceService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async getStudentPracticumAttendances(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId, id } = req.params;
+
+    try {
+      const attendances =
+        await this.attendanceService.getAttendancesByPracticumIdAndProfileId(
+          practicumId,
+          id
+        );
+
+      return res
+        .status(200)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            attendances.map(ListAttendanceDTO)
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getPracticumAttendances(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { profileId } = getTokenPayload(res);
+    const { practicumId } = req.params;
+
+    const attendances =
+      await this.attendanceService.getAttendancesByPracticumIdAndProfileId(
+        practicumId,
+        profileId
+      );
+
+    return res
+      .status(200)
+      .json(
+        createResponse(
+          RESPONSE_MESSAGE.SUCCESS,
+          attendances.map(ListAttendanceDTO)
+        )
+      );
   }
 
   async getStudentPracticumControlCards(

@@ -42,6 +42,14 @@ export class MeetingRouter extends BaseRouter {
         this.handler.putMeeting
       );
 
+    // * create attendance of a meeting
+    this.router
+      .route(this.path + "/:id/attendances")
+      .post(
+        this.authorizationMiddlware.authorize([USER_ROLE.ASSISTANT]),
+        this.handler.postMeetingAttendance
+      );
+
     return this.router;
   }
 }

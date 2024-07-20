@@ -51,7 +51,11 @@ export class UserRouterImpl extends BaseRouter {
     this.router
       .route(this.path + "/master")
       .get(
-        this.authorizationMiddlware.authorize([USER_ROLE.ADMIN]),
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ADMIN,
+          USER_ROLE.ASSISTANT,
+          USER_ROLE.STUDENT,
+        ]),
         this.handler.getUsersMaster
       );
 

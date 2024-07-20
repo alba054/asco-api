@@ -1,6 +1,8 @@
 import { prismaDb } from "../../config/database/PrismaORMDBConfig";
+import { AssistanceEntity } from "../../entity/assistance/AssistanceEntity";
 import { ControlCardEntity } from "../../entity/controlCard/ControlCardEntity";
 import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
+import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 import { ControlCardRepository } from "./ControlCardRepository";
 
 export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
@@ -20,6 +22,8 @@ export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
             assignment: true,
           },
         },
+        firstAssistance: true,
+        secondAssistance: true,
       },
     });
 
@@ -43,6 +47,24 @@ export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
             id: card.meetingId,
           }
         ),
+        firstAssistanceId: card.firstAssistanceId ?? undefined,
+        secondAssistanceId: card.secondAssistanceId! ?? undefined,
+        firstAssistance: new AssistanceEntity(
+          card.firstAssistance?.status ?? false,
+          {
+            id: card.firstAssistance?.id,
+            date: Number(card.firstAssistance?.date),
+            note: card.firstAssistance?.note ?? "",
+          }
+        ),
+        secondAssistance: new AssistanceEntity(
+          card.secondAssistance?.status ?? false,
+          {
+            id: card.secondAssistance?.id,
+            date: Number(card.secondAssistance?.date),
+            note: card.secondAssistance?.note ?? "",
+          }
+        ),
       }
     );
   }
@@ -64,6 +86,18 @@ export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
             number: true,
           },
         },
+        student: {
+          select: {
+            id: true,
+            classOf: true,
+            fullname: true,
+            githubUsername: true,
+            instagramUsername: true,
+            nickname: true,
+            profilePic: true,
+            username: true,
+          },
+        },
       },
     });
 
@@ -80,6 +114,18 @@ export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
               c.meeting.lesson,
               0,
               0
+            ),
+            student: new ProfileEntity(
+              c.student.username!,
+              c.student.fullname!,
+              c.student.nickname!,
+              c.student.classOf!,
+              {
+                id: c.student.id,
+                profilePic: c.student.profilePic ?? undefined,
+                instagramUsername: c.student.instagramUsername ?? undefined,
+                githubUsername: c.student.githubUsername ?? undefined,
+              }
             ),
           }
         );

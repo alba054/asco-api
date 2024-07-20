@@ -2,6 +2,7 @@ import { constants } from "../..";
 import { AssistanceGroupEntity } from "../../../entity/assistanceGroup/AssistanceGroupEntity";
 
 interface IGroupDTO {
+  githubRepoLink: string;
   practicum: {
     id: string;
     course: string;
@@ -12,6 +13,7 @@ interface IGroupDTO {
     fullname: string;
     classOf: string;
     nickname: string;
+    username: string;
     profilePic: string;
   };
   students: {
@@ -20,6 +22,7 @@ interface IGroupDTO {
     classOf: string;
     nickname: string;
     profilePic: string;
+    username: string;
   }[];
   number: number;
   studentsCount: number;
@@ -28,12 +31,14 @@ interface IGroupDTO {
 
 export const GroupDTO = (group: AssistanceGroupEntity) => {
   return {
+    githubRepoLink: group.githubRepoLink ?? null,
     assistant: {
       classOf: group.assistant?.classOf,
       fullname: group.assistant?.fullname,
       id: group.assistantId,
       nickname: group.assistant?.nickname,
       profilePic: constants.GCS_OBJECT_BASE(group.assistant?.profilePic),
+      username: group.assistant?.username,
     },
     id: group.id,
     number: group.number,
@@ -48,6 +53,7 @@ export const GroupDTO = (group: AssistanceGroupEntity) => {
       id: s.id,
       nickname: s.nickname,
       profilePic: constants.GCS_OBJECT_BASE(s.profilePic),
+      username: s.username,
     })),
     studentsCount: group.students?.length,
   } as IGroupDTO;

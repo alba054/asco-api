@@ -1,3 +1,4 @@
+import { ATTENDANCE_STATUS } from "@prisma/client";
 import { MeetingEntity } from "../../../entity/meeting/MeetingEntity";
 
 interface IListMeetingDTO {

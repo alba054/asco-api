@@ -26,6 +26,7 @@ export class ClassroomHandlerImpl extends ClassRoomHandler {
   constructor(
     service: {
       classroomPracticumStudentsService: ClassroomPracticumStudentsService;
+
       classroomService: ClassroomService;
       meetingService: MeetingService;
     },

@@ -24,8 +24,8 @@ export class ClassroomPrismaRepositoryImpl extends ClassRoomRepository {
       include: {
         _count: {
           select: {
-            students: true
-          }
+            students: true,
+          },
         },
         practicum: {
           select: {
@@ -49,7 +49,7 @@ export class ClassroomPrismaRepositoryImpl extends ClassRoomRepository {
               id: c.practicumId,
               badge: c.practicum.badge ?? "",
             }),
-            studentsCount: c._count.students
+            studentsCount: c._count.students,
           }
         );
       }) ?? []
