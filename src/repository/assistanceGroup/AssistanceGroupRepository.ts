@@ -1,6 +1,11 @@
 import { AssistanceGroupEntity } from "../../entity/assistanceGroup/AssistanceGroupEntity";
 
 export abstract class AssistanceGroupRepository {
+  abstract getAssistanceGroupByStudentIdAndPracticumId(
+    profileId: string,
+    practicumId: string
+  ): Promise<AssistanceGroupEntity | null>;
+
   abstract getGroupByPracticumIdAndUsername(
     practicumId: string,
     username: string

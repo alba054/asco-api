@@ -1,4 +1,3 @@
-import { USER_ROLE } from "@prisma/client";
 import { AssistanceGroupEntity } from "../../entity/assistanceGroup/AssistanceGroupEntity";
 import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 import { NotFoundError } from "../../Exceptions/http/NotFoundError";
@@ -48,7 +47,52 @@ export class AssistanceGroupServiceImpl extends AssistanceGroupService {
       }
     );
 
+    await this.checkStudentsInPracticum(
+      group.practicum?.id!,
+      payload.mentees ?? []
+    );
+
+    const mentees: string[] = [];
+    for (let i = 0; i < (payload.mentees?.length ?? 0); i++) {
+      const menteeGroup =
+        await this.assistanceGroupRepository.getAssistanceGroupByStudentIdAndPracticumId(
+          payload.mentees![i],
+          group.practicum?.id!
+        );
+
+      if (menteeGroup && menteeGroup.id !== groupId) {
+        throw new BadRequestError(
+          ERRORCODE.BAD_REQUEST_ERROR,
+          "cannot assign student to this classroom has been assigned to another classroom in this practicum"
+        );
+      }
+
+      mentees.push(payload.mentees![i]);
+    }
+
     await this.assistanceGroupRepository.updateGroupById(groupId, edittedGroup);
+
+    const practicum = await this.practicumRepository.getPracticumById(
+      group.practicum?.id!
+    );
+
+    if (!practicum) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "practicum's not found"
+      );
+    }
+
+    const controlCardMessagesPayload: IControlCardPayload[] = mentees.map(
+      (d) => ({
+        studentId: d,
+        practicumId: group.practicum?.id,
+        meetings: practicum.meetings.map((m) => m.id),
+        groupId: groupId,
+      })
+    );
+
+    this.messagingService?.publish(controlCardMessagesPayload);
   }
 
   async getGroupById(groupId: string): Promise<AssistanceGroupEntity> {
@@ -68,7 +112,9 @@ export class AssistanceGroupServiceImpl extends AssistanceGroupService {
       throw new NotFoundError(ERRORCODE.COMMON_NOT_FOUND, "group's not found");
     }
 
-    await this.assistanceGroupRepository.deleteGroupById(groupId);
+    await this.assistanceGroupAssistanceRepository.deleteGroupAndAssistanceByGroupId(
+      groupId
+    );
   }
 
   async getGroupsByPracticumId(
@@ -132,6 +178,21 @@ export class AssistanceGroupServiceImpl extends AssistanceGroupService {
     }
 
     await this.checkStudentsInPracticum(practicumId, payload.mentees);
+
+    for (let i = 0; i < payload.mentees.length; i++) {
+      const menteeGroup =
+        await this.assistanceGroupRepository.getAssistanceGroupByStudentIdAndPracticumId(
+          payload.mentees[i],
+          practicumId
+        );
+
+      if (menteeGroup) {
+        throw new BadRequestError(
+          ERRORCODE.BAD_REQUEST_ERROR,
+          "cannot assign student to this classroom has been assigned to another classroom in this practicum"
+        );
+      }
+    }
 
     const group = new AssistanceGroupEntity(payload.number, {
       assistantId: payload.mentor,

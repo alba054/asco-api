@@ -1,6 +1,7 @@
 import { MessagingInterface } from "../../config/messaging/MessagingInterface";
 import { AssistanceGroupEntity } from "../../entity/assistanceGroup/AssistanceGroupEntity";
 import { AssistanceGroupRepository } from "../../repository/assistanceGroup/AssistanceGroupRepository";
+import { AssistanceGroupAssistanceRepository } from "../../repository/facade/assistanceGroupAssistanceRepository/AssistanceGroupAssistanceRepository";
 import { PracticumRepository } from "../../repository/practicum/PracticumRepository";
 import { IPostClassroomAssistanceGroupPayload } from "../../utils/interfaces/request/IPostClassroomAssistanceGroupPayload";
 import { IPutAssistanceGroupPayload } from "../../utils/interfaces/request/IPutAssistanceGroupPayload";
@@ -10,15 +11,19 @@ export abstract class AssistanceGroupService {
   protected practicumRepository: PracticumRepository;
   protected assistanceGroupRepository: AssistanceGroupRepository;
   protected messagingService?: MessagingInterface<IControlCardPayload[]>;
+  protected assistanceGroupAssistanceRepository: AssistanceGroupAssistanceRepository;
 
   constructor(
     repository: {
       practicumRepository: PracticumRepository;
       assistanceGroupRepository: AssistanceGroupRepository;
+      assistanceGroupAssistanceRepository: AssistanceGroupAssistanceRepository;
     },
     messaging?: MessagingInterface<IControlCardPayload[]>
   ) {
     this.practicumRepository = repository.practicumRepository;
+    this.assistanceGroupAssistanceRepository =
+      repository.assistanceGroupAssistanceRepository;
     this.assistanceGroupRepository = repository.assistanceGroupRepository;
     this.messagingService = messaging;
   }

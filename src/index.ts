@@ -29,6 +29,9 @@ import { AssistanceGroupPrismaRepositoryImpl } from "./repository/assistanceGrou
 import { AttendancePrismaRepositoryImpl } from "./repository/attendance/AttendancePrismaRepositoryImpl";
 import { ClassroomPrismaRepositoryImpl } from "./repository/classroom/ClassroomPrismaRepositoryImpl";
 import { ControlCardPrismaRepositoryImpl } from "./repository/controlCard/ControlCardPrismaRepositoryImpl";
+import { AssistanceGroupAssistancePrismaRepositoryImpl } from "./repository/facade/assistanceGroupAssistanceRepository/AssistanceGroupAssistancePrismaRepositoryImpl";
+import { AssistanceGroupAssistanceRepository } from "./repository/facade/assistanceGroupAssistanceRepository/AssistanceGroupAssistanceRepository";
+import { ClassroomAssistantGroupPracticumPrismaRepositoryImpl } from "./repository/facade/classroomAssistantGroupPracticumRepository/ClassroomAssistantGroupPracticumPrismaRepositoryImpl";
 import { ClassroomPracticumPrismaRepositoryImpl } from "./repository/facade/classroomPracticumRepository/ClassroomPracticumPrismaRepositoryImpl";
 import { ClassroomPracticumStudentsPrismaRepositoryImpl } from "./repository/facade/classroomPracticumStudents/ClassroomPracticumStudentsPrismaRepositoryImpl";
 import { PracticumClassroomsAndAssistantsPrismaRepository } from "./repository/facade/practicumClassroomsAndAssistantsRepository/PracticumClassroomsAndAssistantsPrismaRepository";
@@ -64,11 +67,18 @@ const classroomPracticumStudentsRepository =
 const classroomPracticumRepository =
   new ClassroomPracticumPrismaRepositoryImpl();
 const attendanceRepository = new AttendancePrismaRepositoryImpl();
+const assistanceGroupAssistanceRepository =
+  new AssistanceGroupAssistancePrismaRepositoryImpl();
+const classroomAssistantGroupPracticumRepository =
+  new ClassroomAssistantGroupPracticumPrismaRepositoryImpl();
 // * services
 const userService = new UserServiceImpl({ userRepository });
 const authService = new AuthServiceImpl();
 const profileService = new ProfileServiceImpl({ profileRepository });
-const practicumService = new PracticumServiceImpl({ practicumRepository });
+const practicumService = new PracticumServiceImpl({
+  practicumRepository,
+  userRepository,
+});
 const practicumClassroomsAndAssistantsService =
   new PracticumClassroomsAndAssistantsServiceImpl({
     practicumRepository,
@@ -80,6 +90,7 @@ const classRoomService = new ClassroomServiceImpl({
   userRepository,
   meetingRepository,
   classroomPracticumRepository,
+  classroomAssistantGroupPracticumRepository,
 });
 const meetingService = new MeetingServiceImpl({
   meetingRepository,
@@ -89,6 +100,7 @@ const assistanceGroupService = new AssistanceGroupServiceImpl(
   {
     practicumRepository,
     assistanceGroupRepository,
+    assistanceGroupAssistanceRepository,
   },
   publisher.googlePubSub
 );

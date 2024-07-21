@@ -138,6 +138,14 @@ export class PracticumRouterImpl extends BaseRouter {
         this.handler.getStudentPracticumControlCards
       );
 
+    // * remove assistant from practicum
+    this.router
+      .route(this.path + "/:practicumId/assistants/:username")
+      .delete(
+        this.authorizationMiddlware.authorize([USER_ROLE.ADMIN]),
+        this.handler.deleteAssistantFromPracticum
+      );
+
     // * get student practicum attendances history by admin and assistant
     this.router
       .route(this.path + "/:practicumId/students/:id/attendances")

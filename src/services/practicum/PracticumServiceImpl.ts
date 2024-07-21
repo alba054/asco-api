@@ -5,10 +5,53 @@ import { PracticumRepository } from "../../repository/practicum/PracticumReposit
 import { IPostPracticumPayload } from "../../utils/interfaces/request/IPostPracticumPayload";
 import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
 import { IPutPracticumPayload } from "../../utils/interfaces/request/IPutPracticumPayload";
+import { UserRepository } from "../../repository/user/UserRepository";
+import { USER_ROLE } from "@prisma/client";
+import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 
 export class PracticumServiceImpl extends PracticumService {
-  constructor(repository: { practicumRepository: PracticumRepository }) {
+  constructor(repository: {
+    practicumRepository: PracticumRepository;
+    userRepository: UserRepository;
+  }) {
     super(repository);
+  }
+
+  async removeAssistantFromClassroom(
+    practicumId: string,
+    username: string
+  ): Promise<void> {
+    const practicum = await this.practicumRepository.getPracticumById(
+      practicumId
+    );
+
+    if (!practicum) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "practicum's not found"
+      );
+    }
+
+    const user = await this.userRepository.getUserByUsername(username);
+
+    if (!user) {
+      throw new NotFoundError(
+        ERRORCODE.USER_NOT_FOUND_ERROR,
+        "user's not found"
+      );
+    }
+
+    if (user?.role !== USER_ROLE.ASSISTANT) {
+      throw new BadRequestError(
+        ERRORCODE.BAD_REQUEST_ERROR,
+        "user is not assistant"
+      );
+    }
+
+    await this.practicumRepository.removeAssistantFromPracticumById(
+      practicumId,
+      username
+    );
   }
 
   async getpracticumsByParticipants(

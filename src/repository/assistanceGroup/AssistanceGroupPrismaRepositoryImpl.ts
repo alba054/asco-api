@@ -9,6 +9,26 @@ import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
 
 export class AssistanceGroupPrismaRepositoryImpl extends AssistanceGroupRepository {
+  async getAssistanceGroupByStudentIdAndPracticumId(
+    profileId: string,
+    practicumId: string
+  ): Promise<AssistanceGroupEntity | null> {
+    const group = await prismaDb.db?.assistantGroup.findFirst({
+      where: {
+        practicumId,
+        students: {
+          some: {
+            id: profileId,
+          },
+        },
+      },
+    });
+
+    if (!group) return null;
+
+    return new AssistanceGroupEntity(group.number, { id: group.id });
+  }
+
   async getGroupByPracticumIdAndUsername(
     practicumId: string,
     username: string
@@ -82,7 +102,11 @@ export class AssistanceGroupPrismaRepositoryImpl extends AssistanceGroupReposito
               s.username,
               s.fullname,
               s.nickname,
-              s.classOf
+              s.classOf,
+              {
+                id: s.id,
+                profilePic: s.profilePic ?? "",
+              }
             );
           }),
           githubRepoLink: g.githubRepoLink ?? "",
@@ -262,7 +286,11 @@ export class AssistanceGroupPrismaRepositoryImpl extends AssistanceGroupReposito
               s.username,
               s.fullname,
               s.nickname,
-              s.classOf
+              s.classOf,
+              {
+                id: s.id,
+                profilePic: s.profilePic ?? "",
+              }
             );
           }),
           githubRepoLink: g.githubRepoLink ?? "",

@@ -62,6 +62,32 @@ export class PracticumHandlerImpl extends PracticumHandler {
     this.schemaValidator = schemaValidator;
   }
 
+  async deleteAssistantFromPracticum(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { username, practicumId } = req.params;
+
+    try {
+      await this.practicumService.removeAssistantFromClassroom(
+        practicumId,
+        username
+      );
+
+      return res
+        .status(200)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            "successfully remove student from classroom"
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
   async getStudentPracticumAttendances(
     req: Request,
     res: Response,

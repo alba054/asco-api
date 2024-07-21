@@ -151,8 +151,8 @@ model ControlCard {
   id                 String          @id @default(uuid())
   student            Profile         @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   meeting            Meeting         @relation(fields: [meetingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  firstAssistance    Assistance?     @relation(name: "control_card_first_assistance", fields: [firstAssistanceId], references: [id])
-  secondAssistance   Assistance?     @relation(name: "control_card_second_assistance", fields: [secondAssistanceId], references: [id])
+  firstAssistance    Assistance?     @relation(name: "control_card_first_assistance", fields: [firstAssistanceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  secondAssistance   Assistance?     @relation(name: "control_card_second_assistance", fields: [secondAssistanceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @default(now()) @updatedAt
   profileId          String

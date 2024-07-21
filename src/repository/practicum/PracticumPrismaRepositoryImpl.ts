@@ -11,6 +11,34 @@ import { ClassroomEntity } from "../../entity/classroom/ClassroomEntity";
 import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
 
 export class PracticumPrismaRepositoryImpl extends PracticumRepository {
+  async removeAssistantFromPracticumById(
+    practicumId: string,
+    username: string
+  ): Promise<void> {
+    try {
+      await prismaDb.db?.practicum.update({
+        where: {
+          id: practicumId,
+        },
+        data: {
+          participants: {
+            disconnect: {
+              username,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new BadRequestError(ERRORCODE.BAD_REQUEST_ERROR, error.message);
+      } else if (error instanceof Error) {
+        throw new InternalServerError(error.message);
+      } else {
+        throw new InternalServerError("internal server error");
+      }
+    }
+  }
+
   async getPracticumsByParticipantId(
     profileId: string
   ): Promise<PracticumEntity[]> {

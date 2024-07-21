@@ -10,6 +10,8 @@ import { ClassroomEntity } from "../../entity/classroom/ClassroomEntity";
 import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
 import { MeetingRepository } from "../../repository/meeting/MeetingRepository";
 import { ClassroomPracticumRepository } from "../../repository/facade/classroomPracticumRepository/ClassroomPracticumRepository";
+import { ClassroomAssistantGroupPracticumRepository } from "../../repository/facade/classroomAssistantGroupPracticumRepository/ClassroomAssistantGroupPracticumRepository";
+import { AssistanceGroupRepository } from "../../repository/assistanceGroup/AssistanceGroupRepository";
 
 export class ClassroomServiceImpl extends ClassroomService {
   constructor(repository: {
@@ -17,8 +19,28 @@ export class ClassroomServiceImpl extends ClassroomService {
     userRepository: UserRepository;
     meetingRepository: MeetingRepository;
     classroomPracticumRepository: ClassroomPracticumRepository;
+    classroomAssistantGroupPracticumRepository: ClassroomAssistantGroupPracticumRepository;
   }) {
     super(repository);
+  }
+
+  async deleteClassroomById(classroomId: string): Promise<void> {
+    const classroom = await this.classroomRepository.getClassroomById(
+      classroomId
+    );
+
+    if (!classroom) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "classroom's not found"
+      );
+    }
+
+    await this.classroomAssistantGroupPracticumRepository.deleteClassrooomById(
+      classroomId,
+      classroom.practicumId!,
+      classroom.students!.map((s) => s.username)
+    );
   }
 
   async getStudentClassroomMeetingsById(

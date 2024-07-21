@@ -32,6 +32,10 @@ export class ClassroomRouter extends BaseRouter {
       .get(
         this.authorizationMiddlware.authorize([USER_ROLE.ADMIN]),
         this.handler.getClassroom
+      )
+      .delete(
+        this.authorizationMiddlware.authorize([USER_ROLE.ADMIN]),
+        this.handler.deleteClassroom
       );
 
     // * get classroom meetings

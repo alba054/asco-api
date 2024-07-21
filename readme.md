@@ -33,3 +33,8 @@ untuk menambahkan data student pada database
 3. (practicums.getPracticumAttendancesForStudent) /api/practicums/{practicumId}/attendances -> get student own attendances (authorized for student)
 4. (attendances.deleteAttendanceById) /api/attendances/{attendanceId} -> delete attendance by id (authorized for assistant and admin)
 5. (users.getUserInfoByAdminAndAssistant) /api/users/{username} -> get user info (authorized for assistant and admin)
+
+## DEV LOG <21 July 2024>
+
+1. (practicums.removeAssistantFromPracticum) /api/practicums/{practicumId}/assistants/{username} -> remove assistants from practicum (authorized for admin)
+2. (classrooms.deleteClassroomById) /api/classes/{classId} -> delete classroom by id (authorized for admin)

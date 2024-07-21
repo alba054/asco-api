@@ -1,6 +1,11 @@
 import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
 
 export abstract class PracticumRepository {
+  abstract removeAssistantFromPracticumById(
+    practicumId: string,
+    username: string
+  ): Promise<void>;
+  
   abstract getPracticumsByParticipantId(
     profileId: string
   ): Promise<PracticumEntity[]>;

@@ -10,7 +10,14 @@ export abstract class ClassRoomHandler {
     this.getClassroomMeetings = this.getClassroomMeetings.bind(this);
     this.getStudentClassroomAssistanceGroup =
       this.getStudentClassroomAssistanceGroup.bind(this);
+    this.deleteClassroom = this.deleteClassroom.bind(this);
   }
+
+  abstract deleteClassroom(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract getStudentClassroomAssistanceGroup(
     req: Request,

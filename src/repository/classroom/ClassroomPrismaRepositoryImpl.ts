@@ -10,6 +10,22 @@ import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 
 export class ClassroomPrismaRepositoryImpl extends ClassRoomRepository {
+  async deleteClassrooomById(classroomId: string): Promise<void> {
+    try {
+      await prismaDb.db?.classroom.delete({
+        where: {
+          id: classroomId,
+        },
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new BadRequestError(ERRORCODE.BAD_REQUEST_ERROR, error.message);
+      } else if (error instanceof Error) {
+        throw new InternalServerError(error.message);
+      }
+    }
+  }
+
   async getClassroomByStudentUsername(
     username: string
   ): Promise<ClassroomEntity[]> {

@@ -39,6 +39,29 @@ export class ClassroomHandlerImpl extends ClassRoomHandler {
     this.schemaValidator = schemaValidator;
   }
 
+  async deleteClassroom(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { classroomId } = req.params;
+
+    try {
+      await this.classroomService.deleteClassroomById(classroomId);
+
+      return res
+        .status(200)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            "successfully delete classroom"
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
   async getStudentClassroomAssistanceGroup(
     req: Request,
     res: Response,

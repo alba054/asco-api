@@ -84,6 +84,7 @@ export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
             id: true,
             lesson: true,
             number: true,
+            meetingDate: true,
           },
         },
         student: {
@@ -112,7 +113,7 @@ export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
             meeting: new MeetingEntity(
               c.meeting.number,
               c.meeting.lesson,
-              0,
+              Number(c.meeting.meetingDate),
               0
             ),
             student: new ProfileEntity(
