@@ -24,6 +24,32 @@ export class AssistanceGroupHandlerImpl extends AssistanceGroupHandler {
     this.schemaValidator = schemaValidator;
   }
 
+  async deleteStudentFromAssistantGroup(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { username, groupId } = req.params;
+
+    try {
+      await this.assistanceGroupService.removeStudentFromAssistantGroup(
+        groupId,
+        username
+      );
+
+      return res
+        .status(200)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            "successfully remove student from asssitant group"
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
   async putAssistanceGroup(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>,

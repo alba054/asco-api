@@ -38,3 +38,10 @@ untuk menambahkan data student pada database
 
 1. (practicums.removeAssistantFromPracticum) /api/practicums/{practicumId}/assistants/{username} -> remove assistants from practicum (authorized for admin)
 2. (classrooms.deleteClassroomById) /api/classes/{classId} -> delete classroom by id (authorized for admin)
+
+## DEV LOG <28 July 2024>
+
+1. (assistance groups.removeStudentFromGroup) /api/groups/{groupId}/students/{username} -> remove students from group (authorized for admin)
+2. (meetings.getAttendancesByMeetingId) /api/meetings/{meetingId}/attendances -> get students attendance list by meeting id (authorized for admin and assistant)
+3. (meetings.insertAttendanceForAllStudentInMeeting) /api/meetings/{meetingId}/attendances/v2 -> add all students attendances in one meeting default status ABSENT (authorized for admin)
+4. (practicums.getPracticumAttendances) /api/practicums/{practicumId}/meetings/attendances -> get practicum meetings (authorized for admin)

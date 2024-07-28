@@ -7,8 +7,41 @@ import { ERRORCODE } from "../../utils";
 import { prismaDb } from "../../config/database/PrismaORMDBConfig";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
+import { AttendanceEntity } from "../../entity/attendance/AttendanceEntity";
+import { UserEntity } from "../../entity/user/UserEntity";
 
 export class MeetingPrismaRepositoryImpl extends MeetingRepository {
+  async getMeetingAttendancesByPracticumId(
+    practicumId: string,
+    classroom: any
+  ): Promise<MeetingEntity[]> {
+    const meetings = await prismaDb.db?.meeting.findMany({
+      where: {
+        AND: [{ practicumId }],
+      },
+      include: {
+        attendances: true,
+      },
+    });
+
+    return (
+      meetings?.map((m) => {
+        return new MeetingEntity(
+          m.number,
+          m.lesson,
+          Number(m.meetingDate),
+          Number(m.assistanceDeadline),
+          {
+            id: m.id,
+            attendances: m.attendances.map((a) => {
+              return new AttendanceEntity(a.attendanceStatus);
+            }),
+          }
+        );
+      }) ?? []
+    );
+  }
+
   async getMeetingsByClassroomId(
     classroomId: string
   ): Promise<MeetingEntity[]> {
@@ -144,6 +177,11 @@ export class MeetingPrismaRepositoryImpl extends MeetingRepository {
                 nickname: true,
                 classOf: true,
                 id: true,
+                user: {
+                  select: {
+                    role: true,
+                  },
+                },
               },
             },
           },
@@ -189,7 +227,7 @@ export class MeetingPrismaRepositoryImpl extends MeetingRepository {
               p.fullname,
               p.nickname,
               p.classOf,
-              { id: p.id }
+              { id: p.id, user: new UserEntity(p.username, "", p.user.role) }
             );
           }),
         }),

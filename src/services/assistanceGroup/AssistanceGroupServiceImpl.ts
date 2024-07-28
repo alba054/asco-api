@@ -8,6 +8,22 @@ import { IControlCardPayload } from "../../utils/interfaces/schema/IControlCardP
 import { AssistanceGroupService } from "./AssistanceGroupService";
 
 export class AssistanceGroupServiceImpl extends AssistanceGroupService {
+  async removeStudentFromAssistantGroup(
+    groupId: string,
+    username: string
+  ): Promise<void> {
+    const group = await this.assistanceGroupRepository.getGroupById(groupId);
+
+    if (!group) {
+      throw new NotFoundError(ERRORCODE.COMMON_NOT_FOUND, "group's not found");
+    }
+
+    await this.assistantGroupControlCardRepository.removeStudentFromGroupAndControlCard(
+      groupId,
+      username
+    );
+  }
+
   async getGroupsByPracticumIdAndUsername(
     practicumId: string,
     username: string
@@ -60,14 +76,16 @@ export class AssistanceGroupServiceImpl extends AssistanceGroupService {
           group.practicum?.id!
         );
 
+      if (!menteeGroup) {
+        mentees.push(payload.mentees![i]);
+      }
+
       if (menteeGroup && menteeGroup.id !== groupId) {
         throw new BadRequestError(
           ERRORCODE.BAD_REQUEST_ERROR,
           "cannot assign student to this classroom has been assigned to another classroom in this practicum"
         );
       }
-
-      mentees.push(payload.mentees![i]);
     }
 
     await this.assistanceGroupRepository.updateGroupById(groupId, edittedGroup);

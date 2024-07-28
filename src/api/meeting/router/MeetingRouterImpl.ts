@@ -43,11 +43,30 @@ export class MeetingRouter extends BaseRouter {
       );
 
     // * create attendance of a meeting
+    // * get attendances by meeting id
     this.router
       .route(this.path + "/:id/attendances")
       .post(
         this.authorizationMiddlware.authorize([USER_ROLE.ASSISTANT]),
         this.handler.postMeetingAttendance
+      )
+      .get(
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ASSISTANT,
+          USER_ROLE.ADMIN,
+        ]),
+        this.handler.getMeetingAttendances
+      );
+
+    // * post all student attendances in one meeting
+    this.router
+      .route(this.path + "/:id/attendances/v2")
+      .post(
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ASSISTANT,
+          USER_ROLE.ADMIN,
+        ]),
+        this.handler.postMeetingAttendances
       );
 
     return this.router;

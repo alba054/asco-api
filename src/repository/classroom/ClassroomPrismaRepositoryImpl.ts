@@ -10,6 +10,38 @@ import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 
 export class ClassroomPrismaRepositoryImpl extends ClassRoomRepository {
+  async getClassroomByStudentIdAndPracticumId(
+    profileId: string,
+    practicumId: string
+  ): Promise<ClassroomEntity | null> {
+    const classroom = await prismaDb.db?.classroom.findFirst({
+      where: {
+        AND: [
+          {
+            practicumId,
+          },
+          {
+            students: {
+              some: {
+                id: profileId,
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    if (!classroom) return null;
+
+    return new ClassroomEntity(
+      classroom.name,
+      classroom.meetingDay,
+      classroom.startTime,
+      classroom.endTime,
+      { id: classroom.id }
+    );
+  }
+
   async deleteClassrooomById(classroomId: string): Promise<void> {
     try {
       await prismaDb.db?.classroom.delete({

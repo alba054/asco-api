@@ -31,6 +31,7 @@ import { ClassroomPrismaRepositoryImpl } from "./repository/classroom/ClassroomP
 import { ControlCardPrismaRepositoryImpl } from "./repository/controlCard/ControlCardPrismaRepositoryImpl";
 import { AssistanceGroupAssistancePrismaRepositoryImpl } from "./repository/facade/assistanceGroupAssistanceRepository/AssistanceGroupAssistancePrismaRepositoryImpl";
 import { AssistanceGroupAssistanceRepository } from "./repository/facade/assistanceGroupAssistanceRepository/AssistanceGroupAssistanceRepository";
+import { AssistantGroupControlCardPrismaRepositoryImpl } from "./repository/facade/assistantGroupControlCardRepository/AssistantGroupControlCardPrismaRepositoryImpl";
 import { ClassroomAssistantGroupPracticumPrismaRepositoryImpl } from "./repository/facade/classroomAssistantGroupPracticumRepository/ClassroomAssistantGroupPracticumPrismaRepositoryImpl";
 import { ClassroomPracticumPrismaRepositoryImpl } from "./repository/facade/classroomPracticumRepository/ClassroomPracticumPrismaRepositoryImpl";
 import { ClassroomPracticumStudentsPrismaRepositoryImpl } from "./repository/facade/classroomPracticumStudents/ClassroomPracticumStudentsPrismaRepositoryImpl";
@@ -96,11 +97,14 @@ const meetingService = new MeetingServiceImpl({
   meetingRepository,
   practicumRepository,
 });
+const assistantGroupControlCardRepository =
+  new AssistantGroupControlCardPrismaRepositoryImpl();
 const assistanceGroupService = new AssistanceGroupServiceImpl(
   {
     practicumRepository,
     assistanceGroupRepository,
     assistanceGroupAssistanceRepository,
+    assistantGroupControlCardRepository,
   },
   publisher.googlePubSub
 );
@@ -118,6 +122,7 @@ const attendanceService = new AttendanceServiceImpl({
   practicumRepository,
   attendanceRepository,
   meetingRepository,
+  classroomRepository,
 });
 // * validators
 const schemaValidator = new JoiValidatorImpl();

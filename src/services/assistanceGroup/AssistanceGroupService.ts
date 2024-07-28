@@ -2,6 +2,7 @@ import { MessagingInterface } from "../../config/messaging/MessagingInterface";
 import { AssistanceGroupEntity } from "../../entity/assistanceGroup/AssistanceGroupEntity";
 import { AssistanceGroupRepository } from "../../repository/assistanceGroup/AssistanceGroupRepository";
 import { AssistanceGroupAssistanceRepository } from "../../repository/facade/assistanceGroupAssistanceRepository/AssistanceGroupAssistanceRepository";
+import { AssistantGroupControlCardRepository } from "../../repository/facade/assistantGroupControlCardRepository/AassistantGroupControlCardRepository";
 import { PracticumRepository } from "../../repository/practicum/PracticumRepository";
 import { IPostClassroomAssistanceGroupPayload } from "../../utils/interfaces/request/IPostClassroomAssistanceGroupPayload";
 import { IPutAssistanceGroupPayload } from "../../utils/interfaces/request/IPutAssistanceGroupPayload";
@@ -12,12 +13,14 @@ export abstract class AssistanceGroupService {
   protected assistanceGroupRepository: AssistanceGroupRepository;
   protected messagingService?: MessagingInterface<IControlCardPayload[]>;
   protected assistanceGroupAssistanceRepository: AssistanceGroupAssistanceRepository;
+  protected assistantGroupControlCardRepository: AssistantGroupControlCardRepository;
 
   constructor(
     repository: {
       practicumRepository: PracticumRepository;
       assistanceGroupRepository: AssistanceGroupRepository;
       assistanceGroupAssistanceRepository: AssistanceGroupAssistanceRepository;
+      assistantGroupControlCardRepository: AssistantGroupControlCardRepository;
     },
     messaging?: MessagingInterface<IControlCardPayload[]>
   ) {
@@ -25,8 +28,15 @@ export abstract class AssistanceGroupService {
     this.assistanceGroupAssistanceRepository =
       repository.assistanceGroupAssistanceRepository;
     this.assistanceGroupRepository = repository.assistanceGroupRepository;
+    this.assistantGroupControlCardRepository =
+      repository.assistantGroupControlCardRepository;
     this.messagingService = messaging;
   }
+
+  abstract removeStudentFromAssistantGroup(
+    groupId: string,
+    username: string
+  ): Promise<void>;
 
   abstract getGroupsByPracticumIdAndUsername(
     practicumId: string,

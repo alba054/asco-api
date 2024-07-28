@@ -1,13 +1,105 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { AttendanceEntity } from "../../entity/attendance/AttendanceEntity";
 import { AttendanceRepository } from "./AttendanceRepository";
-import { ERRORCODE } from "../../utils";
+import { constants, ERRORCODE } from "../../utils";
 import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 import { InternalServerError } from "../../Exceptions/http/InternalServerError";
 import { prismaDb } from "../../config/database/PrismaORMDBConfig";
 import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
+import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 
 export class AttendancePrismaRepositoryImpl extends AttendanceRepository {
+  async insertAttendancesForAllStudentByMeetingId(
+    attendances: AttendanceEntity[]
+  ): Promise<void> {
+    try {
+      await prismaDb.db?.attendance.createMany({
+        data: attendances.map((a) => ({
+          meetingId: a.meetingId!,
+          practicumId: a.practicumId!,
+          profileId: a.studentId!,
+          attendanceStatus: a.attendanceStatus,
+          classroomId: a.classroomId,
+          time: a.time,
+        })),
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new BadRequestError(ERRORCODE.BAD_REQUEST_ERROR, error.message);
+      } else if (error instanceof Error) {
+        throw new InternalServerError(error.message);
+      }
+    }
+  }
+
+  async getAttendanceByMeetingIdOrClassroom(
+    meetingId: string,
+    classroom?: string | undefined
+  ): Promise<AttendanceEntity[]> {
+    const attendances = await prismaDb.db?.attendance.findMany({
+      where: {
+        AND: [
+          { meetingId },
+          {
+            practicum: {
+              classrooms: {
+                some: {
+                  id: classroom,
+                },
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        meeting: {
+          select: {
+            assignment: true,
+            assistant: true,
+            coAssistant: true,
+            id: true,
+            lesson: true,
+            number: true,
+            meetingDate: true,
+            assistanceDeadline: true,
+            module: true,
+          },
+        },
+        student: {
+          select: {
+            username: true,
+            nickname: true,
+            fullname: true,
+            classOf: true,
+            profilePic: true,
+            id: true,
+          },
+        },
+      },
+    });
+
+    return (
+      attendances?.map((a) => {
+        return new AttendanceEntity(a.attendanceStatus, {
+          id: a.id,
+          time: a.time ?? 0,
+          student: new ProfileEntity(
+            a.student.username,
+            a.student.fullname,
+            a.student.nickname,
+            a.student.classOf,
+            {
+              id: a.student.id,
+              profilePic:
+                constants.GCS_OBJECT_BASE(a.student.profilePic ?? "") ??
+                undefined,
+            }
+          ),
+        });
+      }) ?? []
+    );
+  }
+
   async deleteAttendanceById(id: string): Promise<void> {
     try {
       await prismaDb.db?.attendance.delete({ where: { id } });
@@ -45,6 +137,7 @@ export class AttendancePrismaRepositoryImpl extends AttendanceRepository {
           note: attendance.note,
           profileId: attendance.studentId!,
           practicumId: attendance.practicumId!,
+          classroomId: attendance.classroomId,
         },
       });
     } catch (error) {

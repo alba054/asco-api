@@ -2,8 +2,13 @@ import { ClassroomEntity } from "../../entity/classroom/ClassroomEntity";
 import { IPutClassroomStudents } from "../../utils/interfaces/request/IPutClassroomsStudents";
 
 export abstract class ClassRoomRepository {
+  abstract getClassroomByStudentIdAndPracticumId(
+    profileId: string,
+    practicumId: string
+  ): Promise<ClassroomEntity | null>;
+
   abstract deleteClassrooomById(classroomId: string): Promise<void>;
-  
+
   abstract getClassroomByStudentUsername(
     username: string
   ): Promise<ClassroomEntity[]>;

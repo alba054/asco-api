@@ -157,6 +157,14 @@ export class PracticumRouterImpl extends BaseRouter {
         this.handler.getStudentPracticumAttendances
       );
 
+    // * get practicum meetings attendances
+    this.router
+      .route(this.path + "/:practicumId/meetings/attendances")
+      .get(
+        this.authorizationMiddlware.authorize([USER_ROLE.ADMIN]),
+        this.handler.getPracticumMeetingAttendances
+      );
+
     return this.router;
   }
 }

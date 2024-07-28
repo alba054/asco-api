@@ -15,6 +15,7 @@ import { PracticumMeetingPutPayloadSchema } from "../../../utils/validator/meeti
 import { IPostMeetingAttendancePayload } from "../../../utils/interfaces/request/IPostMeetingAttendancePayload";
 import { MeetingAttendancePostPayloadSchema } from "../../../utils/validator/attendance/Joi/MeetingAttendancePostPayloadSchema";
 import { AttendanceService } from "../../../services/attendance/AttendanceService";
+import { ListStudentAttendanceDTO } from "../../../utils/dto/attendances/IListStudentAttendanceDTO";
 
 export class MeetingHandlerImpl extends MeetingHandler {
   private meetingService: MeetingService;
@@ -32,6 +33,49 @@ export class MeetingHandlerImpl extends MeetingHandler {
     this.meetingService = service.meetingService;
     this.attendanceService = service.attendanceService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async postMeetingAttendances(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { id } = req.params;
+
+    try {
+      await this.attendanceService.addAttendancesForAllStudentsByMeetingId(id);
+
+      return res
+        .status(201)
+        .json(
+          createResponse(RESPONSE_MESSAGE.SUCCESS, "successfully edit meeting")
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getMeetingAttendances(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { id } = req.params;
+    const { classroom } = req.query;
+
+    const attendances = await this.attendanceService.getAttendancesByMeetingId(
+      id,
+      classroom
+    );
+
+    return res
+      .status(200)
+      .json(
+        createResponse(
+          RESPONSE_MESSAGE.SUCCESS,
+          attendances.map(ListStudentAttendanceDTO)
+        )
+      );
   }
 
   async postMeetingAttendance(

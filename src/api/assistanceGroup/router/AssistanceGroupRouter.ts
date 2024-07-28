@@ -36,6 +36,14 @@ export class AssistanceGroupRouterImpl extends BaseRouter {
         this.handler.putAssistanceGroup
       );
 
+    // * remove student from assistantGroup
+    this.router
+      .route(this.path + "/:groupId/students/:username")
+      .delete(
+        this.authorizationMiddlware.authorize([USER_ROLE.ADMIN]),
+        this.handler.deleteStudentFromAssistantGroup
+      );
+
     return this.router;
   }
 }

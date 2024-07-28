@@ -30,6 +30,7 @@ import { USER_ROLE } from "@prisma/client";
 import { ControlCardEntity } from "../../../entity/controlCard/ControlCardEntity";
 import { ListAttendanceDTO } from "../../../utils/dto/attendances/IListAttendanceDTO";
 import { AttendanceService } from "../../../services/attendance/AttendanceService";
+import { ListMeetingAttendanceDTO } from "../../../utils/dto/meeting/IListMeetingAttendanceDTO";
 
 export class PracticumHandlerImpl extends PracticumHandler {
   private practicumService: PracticumService;
@@ -60,6 +61,30 @@ export class PracticumHandlerImpl extends PracticumHandler {
     this.controlCardService = service.controlCardService;
     this.attendanceService = service.attendanceService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async getPracticumMeetingAttendances(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId } = req.params;
+    const { classroom } = req.query;
+
+    const attendances =
+      await this.meetingService.getMeetingAttendancesByPracticumId(
+        practicumId,
+        classroom
+      );
+
+    return res
+      .status(200)
+      .json(
+        createResponse(
+          RESPONSE_MESSAGE.SUCCESS,
+          attendances.map(ListMeetingAttendanceDTO)
+        )
+      );
   }
 
   async deleteAssistantFromPracticum(

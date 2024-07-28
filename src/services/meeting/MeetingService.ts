@@ -17,6 +17,11 @@ export abstract class MeetingService {
     this.practicumRepository = repository.practicumRepository;
   }
 
+  abstract getMeetingAttendancesByPracticumId(
+    practicumId: string,
+    classroom?: any
+  ): Promise<MeetingEntity[]>;
+
   abstract isUserAuthorizedByMeetingId(
     meetingId: string,
     userRole: USER_ROLE,

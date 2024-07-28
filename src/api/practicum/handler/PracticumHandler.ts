@@ -23,7 +23,15 @@ export abstract class PracticumHandler {
       this.getStudentPracticumAttendances.bind(this);
     this.deleteAssistantFromPracticum =
       this.deleteAssistantFromPracticum.bind(this);
+    this.getPracticumMeetingAttendances =
+      this.getPracticumMeetingAttendances.bind(this);
   }
+
+  abstract getPracticumMeetingAttendances(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract deleteAssistantFromPracticum(
     req: Request,

@@ -1,6 +1,11 @@
 import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
 
 export abstract class MeetingRepository {
+  abstract getMeetingAttendancesByPracticumId(
+    practicumId: string,
+    classroom: any
+  ): Promise<MeetingEntity[]>;
+
   abstract getMeetingsByClassroomId(
     classroomId: string
   ): Promise<MeetingEntity[]>;

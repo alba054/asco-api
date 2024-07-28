@@ -8,6 +8,27 @@ import { MeetingService } from "./MeetingService";
 import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 
 export class MeetingServiceImpl extends MeetingService {
+  async getMeetingAttendancesByPracticumId(
+    practicumId: string,
+    classroom?: any
+  ): Promise<MeetingEntity[]> {
+    const practicum = await this.practicumRepository.getPracticumById(
+      practicumId
+    );
+
+    if (!practicum) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "practicum's not found"
+      );
+    }
+
+    return await this.meetingRepository.getMeetingAttendancesByPracticumId(
+      practicumId,
+      classroom
+    );
+  }
+
   // * check to see meeting detail by its meeting id
   async isUserAuthorizedByMeetingId(
     meetingId: string,
