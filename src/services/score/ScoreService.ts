@@ -1,7 +1,7 @@
 import { ClassRoomRepository } from "../../repository/classroom/ClassroomRepository";
 import { MeetingRepository } from "../../repository/meeting/MeetingRepository";
 import { ScoreRepository } from "../../repository/score/ScoreRepository";
-import { IPostMeetingResponseScore } from "../../utils/interfaces/request/IPostMeetingResponseScore";
+import { IPostMeetingScore } from "../../utils/interfaces/request/IPostMeetingResponseScore";
 
 export abstract class ScoreService {
   protected scoreRepository: ScoreRepository;
@@ -20,7 +20,7 @@ export abstract class ScoreService {
 
   abstract addResponseScore(
     id: string,
-    payload: IPostMeetingResponseScore,
+    payload: IPostMeetingScore,
     assistant: string
   ): Promise<void>;
 }

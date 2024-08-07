@@ -45,3 +45,8 @@ untuk menambahkan data student pada database
 2. (meetings.getAttendancesByMeetingId) /api/meetings/{meetingId}/attendances -> get students attendance list by meeting id (authorized for admin and assistant)
 3. (meetings.insertAttendanceForAllStudentInMeeting) /api/meetings/{meetingId}/attendances/v2 -> add all students attendances in one meeting default status ABSENT (authorized for admin)
 4. (practicums.getPracticumAttendances) /api/practicums/{practicumId}/meetings/attendances -> get practicum meetings (authorized for admin)
+
+## DEV LOg <7 August 2024>
+
+1. (attendace.getAttendanceById) /api/attendances/{attendanceId} -> get attendance by id (authorized for admin, asssistant, and student)
+2. (meetings.addResponseOrQuizScore) /api/meetings/{meetingId}/scores -> add quiz or response score (authorizd for assistant)

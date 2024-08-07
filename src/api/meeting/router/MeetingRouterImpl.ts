@@ -60,10 +60,10 @@ export class MeetingRouter extends BaseRouter {
 
     // * input response scores
     this.router
-      .route(this.path + "/:id/scores/response")
+      .route(this.path + "/:id/scores")
       .post(
         this.authorizationMiddlware.authorize([USER_ROLE.ASSISTANT]),
-        this.handler.postMeetingResponseScore
+        this.handler.postMeetingScore
       );
 
     // * post all student attendances in one meeting

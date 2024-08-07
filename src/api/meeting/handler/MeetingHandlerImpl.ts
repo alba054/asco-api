@@ -16,8 +16,8 @@ import { IPostMeetingAttendancePayload } from "../../../utils/interfaces/request
 import { MeetingAttendancePostPayloadSchema } from "../../../utils/validator/attendance/Joi/MeetingAttendancePostPayloadSchema";
 import { AttendanceService } from "../../../services/attendance/AttendanceService";
 import { ListStudentAttendanceDTO } from "../../../utils/dto/attendances/IListStudentAttendanceDTO";
-import { IPostMeetingResponseScore } from "../../../utils/interfaces/request/IPostMeetingResponseScore";
-import { MeetingResponseScorePostPayloadSchema } from "../../../utils/validator/score/MeetingResponseScorePostPayloadSchema";
+import { IPostMeetingScore } from "../../../utils/interfaces/request/IPostMeetingResponseScore";
+import { MeetingScorePostPayloadSchema } from "../../../utils/validator/score/MeetingResponseScorePostPayloadSchema";
 import { ScoreService } from "../../../services/score/ScoreService";
 
 export class MeetingHandlerImpl extends MeetingHandler {
@@ -41,18 +41,18 @@ export class MeetingHandlerImpl extends MeetingHandler {
     this.schemaValidator = schemaValidator;
   }
 
-  async postMeetingResponseScore(
+  async postMeetingScore(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<any> {
     const { id } = req.params;
-    const payload: IPostMeetingResponseScore = req.body;
+    const payload: IPostMeetingScore = req.body;
     const { profileId } = getTokenPayload(res);
 
     try {
       this.schemaValidator.validate({
-        schema: MeetingResponseScorePostPayloadSchema,
+        schema: MeetingScorePostPayloadSchema,
         payload,
       });
 

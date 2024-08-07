@@ -5,16 +5,19 @@ import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 import { ERRORCODE } from "../../utils";
 import { InternalServerError } from "../../Exceptions/http/InternalServerError";
 import { prismaDb } from "../../config/database/PrismaORMDBConfig";
+import { SCORE_TYPE } from "@prisma/client";
 
 export class ScorePrismaRepositoryImpl extends ScoreRepository {
-  async getScoreByMeetingIdAndStudentId(
+  async getScoreByMeetingIdAndStudentIdAndType(
     meetingId: string,
-    studentId: string
+    studentId: string,
+    type: SCORE_TYPE
   ): Promise<ScoreEntity | null> {
     const score = await prismaDb.db?.score.findFirst({
       where: {
         meetingId,
         profileId: studentId,
+        type,
       },
     });
 

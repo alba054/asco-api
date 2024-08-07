@@ -3,13 +3,13 @@ import { ScoreEntity } from "../../entity/score/ScoreEntity";
 import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 import { NotFoundError } from "../../Exceptions/http/NotFoundError";
 import { ERRORCODE } from "../../utils";
-import { IPostMeetingResponseScore } from "../../utils/interfaces/request/IPostMeetingResponseScore";
+import { IPostMeetingScore } from "../../utils/interfaces/request/IPostMeetingResponseScore";
 import { ScoreService } from "./ScoreService";
 
 export class ScoreServiceImpl extends ScoreService {
   async addResponseScore(
     meetingId: string,
-    payload: IPostMeetingResponseScore,
+    payload: IPostMeetingScore,
     assistantId: string
   ): Promise<void> {
     const meeting = await this.meetingRepository.getMeetingById(meetingId);
@@ -21,10 +21,12 @@ export class ScoreServiceImpl extends ScoreService {
       );
     }
 
-    const oldScore = await this.scoreRepository.getScoreByMeetingIdAndStudentId(
-      meetingId,
-      payload.studentId
-    );
+    const oldScore =
+      await this.scoreRepository.getScoreByMeetingIdAndStudentIdAndType(
+        meetingId,
+        payload.studentId,
+        payload.type
+      );
 
     if (oldScore) {
       throw new BadRequestError(
