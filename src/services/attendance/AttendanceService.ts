@@ -4,6 +4,7 @@ import { ClassRoomRepository } from "../../repository/classroom/ClassroomReposit
 import { MeetingRepository } from "../../repository/meeting/MeetingRepository";
 import { PracticumRepository } from "../../repository/practicum/PracticumRepository";
 import { IPostMeetingAttendancePayload } from "../../utils/interfaces/request/IPostMeetingAttendancePayload";
+import { IPutAttendancePayload } from "../../utils/interfaces/request/IPutAttendancePayload";
 
 export abstract class AttendanceService {
   protected attendanceRepository: AttendanceRepository;
@@ -22,6 +23,14 @@ export abstract class AttendanceService {
     this.meetingRepository = repository.meetingRepository;
     this.classroomRepository = repository.classroomRepository;
   }
+
+  abstract getAttendanceById(id: string): Promise<AttendanceEntity>;
+
+  abstract updateAttendanceById(
+    id: string,
+    payload: IPutAttendancePayload,
+    profileId: string
+  ): Promise<void>;
 
   abstract addAttendancesForAllStudentsByMeetingId(id: string): Promise<void>;
 

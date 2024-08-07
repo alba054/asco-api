@@ -9,6 +9,42 @@ import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 
 export class AttendancePrismaRepositoryImpl extends AttendanceRepository {
+  async updateAttendanceById(attendance: AttendanceEntity): Promise<void> {
+    try {
+      await prismaDb.db?.attendance.update({
+        where: { id: attendance.id },
+        data: {
+          extraPoint: attendance.extraPoint,
+          attendanceStatus: attendance.attendanceStatus,
+          note: attendance.note,
+          time: attendance.time,
+        },
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new BadRequestError(ERRORCODE.BAD_REQUEST_ERROR, error.message);
+      } else if (error instanceof Error) {
+        throw new InternalServerError(error.message);
+      }
+    }
+  }
+
+  async getAttendanceByMeetingIdAndStudentId(
+    meetingId: string,
+    profileId: string
+  ): Promise<AttendanceEntity | null> {
+    const attendance = await prismaDb.db?.attendance.findFirst({
+      where: {
+        profileId,
+        meetingId,
+      },
+    });
+
+    if (!attendance) return null;
+
+    return new AttendanceEntity(attendance.attendanceStatus);
+  }
+
   async insertAttendancesForAllStudentByMeetingId(
     attendances: AttendanceEntity[]
   ): Promise<void> {
@@ -115,6 +151,19 @@ export class AttendancePrismaRepositoryImpl extends AttendanceRepository {
   async getAttendanceById(id: string): Promise<AttendanceEntity | null> {
     const attendance = await prismaDb.db?.attendance.findUnique({
       where: { id },
+      include: {
+        meeting: {
+          select: {
+            id: true,
+            lesson: true,
+            meetingDate: true,
+            number: true,
+            module: true,
+            assignment: true,
+            assistanceDeadline: true,
+          },
+        },
+      },
     });
 
     if (!attendance) return null;
@@ -124,6 +173,17 @@ export class AttendancePrismaRepositoryImpl extends AttendanceRepository {
       extraPoint: attendance.extraPoint ?? 0,
       note: attendance.note ?? undefined,
       time: attendance.time ?? undefined,
+      meeting: new MeetingEntity(
+        attendance.meeting.number,
+        attendance.meeting.lesson,
+        Number(attendance.meeting.meetingDate),
+        Number(attendance.meeting.assistanceDeadline),
+        {
+          assignment: attendance.meeting.assignment ?? undefined,
+          id: attendance.meeting.id,
+          module: attendance.meeting.module ?? undefined,
+        }
+      ),
     });
   }
 

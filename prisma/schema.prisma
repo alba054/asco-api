@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL_SANDBOX")
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -128,6 +128,7 @@ model Attendance {
   practicum        Practicum         @relation(fields: [practicumId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   practicumId      String
 
+  @@unique([meetingId, profileId])
   @@map("attendances")
 }
 

@@ -1,6 +1,11 @@
 import { AttendanceEntity } from "../../entity/attendance/AttendanceEntity";
 
 export abstract class AttendanceRepository {
+  abstract updateAttendanceById(attendance: AttendanceEntity): Promise<void>;
+  abstract getAttendanceByMeetingIdAndStudentId(
+    meetingId: string,
+    profileId: string
+  ): Promise<AttendanceEntity | null>;
   abstract insertAttendancesForAllStudentByMeetingId(
     attendances: AttendanceEntity[]
   ): Promise<void>;

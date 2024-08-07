@@ -9,10 +9,12 @@ interface IListMeetingAttendanceDTO {
   attend: number;
   absent: number;
   permission: number;
+  meetingId: string;
 }
 
 export const ListMeetingAttendanceDTO = (meeting: MeetingEntity) => {
   return {
+    meetingId: meeting.id,
     absent:
       meeting.attendances?.filter(
         (a) => a.attendanceStatus === ATTENDANCE_STATUS.ABSENT

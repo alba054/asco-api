@@ -9,8 +9,94 @@ import {
 } from "../../utils";
 import { IPostMeetingAttendancePayload } from "../../utils/interfaces/request/IPostMeetingAttendancePayload";
 import { AttendanceService } from "./AttendanceService";
+import { IPutAttendancePayload } from "../../utils/interfaces/request/IPutAttendancePayload";
 
 export class AttendanceServiceImpl extends AttendanceService {
+  async getAttendanceById(id: string): Promise<AttendanceEntity> {
+    const attendance = await this.attendanceRepository.getAttendanceById(id);
+
+    if (!attendance) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "attendance's not found"
+      );
+    }
+
+    // todo:
+    // create a logic for eligible student and assistant here
+    // todo:
+
+    return attendance;
+  }
+
+  async updateAttendanceById(
+    id: string,
+    payload: IPutAttendancePayload,
+    profileId: string
+  ): Promise<void> {
+    const oldAttendance = await this.attendanceRepository.getAttendanceById(id);
+
+    if (!oldAttendance) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "attendance's not found"
+      );
+    }
+
+    /*
+    if (
+      !meeting.practicum?.participants.map((p) => p.id).includes(assistantId)
+    ) {
+      throw new BadRequestError(
+        ERRORCODE.BAD_REQUEST_ERROR,
+        "assistant's not in practicum participants"
+      );
+    }
+
+    if (
+      !meeting.practicum?.participants
+        .map((p) => p.id)
+        .includes(payload.profileId)
+    ) {
+      throw new BadRequestError(
+        ERRORCODE.BAD_REQUEST_ERROR,
+        "student's not in practicum participants"
+      );
+    }
+    */
+
+    /*
+    const classroom =
+      await this.classroomRepository.getClassroomByStudentIdAndPracticumId(
+        payload.profileId,
+        meeting.practicum.id!
+      );
+
+    if (!classroom) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "student's classroom is not found"
+      );
+    }
+    */
+
+    const attendance = new AttendanceEntity(
+      payload.attendanceStatus ?? oldAttendance.attendanceStatus,
+      {
+        id,
+        extraPoint: payload.extraPoint ?? oldAttendance.extraPoint,
+        note: payload.note ?? oldAttendance.note,
+        time: convertDateToTimeInMinutes(
+          Math.floor(
+            convertEpochToDate(new Date().getTime(), 8).getTime() / 1000
+          )
+        ),
+      }
+    );
+
+    this.attendanceRepository.updateAttendanceById(attendance);
+  }
+
   async addAttendancesForAllStudentsByMeetingId(id: string): Promise<void> {
     const meeting = await this.meetingRepository.getMeetingById(id);
 
@@ -126,6 +212,19 @@ export class AttendanceServiceImpl extends AttendanceService {
       throw new NotFoundError(
         ERRORCODE.COMMON_NOT_FOUND,
         "student's classroom is not found"
+      );
+    }
+
+    const oldAttendance =
+      await this.attendanceRepository.getAttendanceByMeetingIdAndStudentId(
+        meetingId,
+        payload.profileId // studentId
+      );
+
+    if (oldAttendance) {
+      throw new BadRequestError(
+        ERRORCODE.BAD_REQUEST_ERROR,
+        "attendance has been made"
       );
     }
 

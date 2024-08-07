@@ -30,7 +30,6 @@ import { AttendancePrismaRepositoryImpl } from "./repository/attendance/Attendan
 import { ClassroomPrismaRepositoryImpl } from "./repository/classroom/ClassroomPrismaRepositoryImpl";
 import { ControlCardPrismaRepositoryImpl } from "./repository/controlCard/ControlCardPrismaRepositoryImpl";
 import { AssistanceGroupAssistancePrismaRepositoryImpl } from "./repository/facade/assistanceGroupAssistanceRepository/AssistanceGroupAssistancePrismaRepositoryImpl";
-import { AssistanceGroupAssistanceRepository } from "./repository/facade/assistanceGroupAssistanceRepository/AssistanceGroupAssistanceRepository";
 import { AssistantGroupControlCardPrismaRepositoryImpl } from "./repository/facade/assistantGroupControlCardRepository/AssistantGroupControlCardPrismaRepositoryImpl";
 import { ClassroomAssistantGroupPracticumPrismaRepositoryImpl } from "./repository/facade/classroomAssistantGroupPracticumRepository/ClassroomAssistantGroupPracticumPrismaRepositoryImpl";
 import { ClassroomPracticumPrismaRepositoryImpl } from "./repository/facade/classroomPracticumRepository/ClassroomPracticumPrismaRepositoryImpl";
@@ -39,6 +38,7 @@ import { PracticumClassroomsAndAssistantsPrismaRepository } from "./repository/f
 import { MeetingPrismaRepositoryImpl } from "./repository/meeting/MeetingPrismaRepositoryImpl";
 import { PracticumPrismaRepositoryImpl } from "./repository/practicum/PracticumPrismaRepositoryImpl";
 import { ProfilePrismaRepositoryImpl } from "./repository/profile/ProfilePrismaRepositoryImpl";
+import { ScorePrismaRepositoryImpl } from "./repository/score/ScorePrismaRepositoryImpl";
 import { UserPrismaRepositoryImpl } from "./repository/user/UserPrismaRepositoryImpl";
 import { AssistanceGroupServiceImpl } from "./services/assistanceGroup/AssistanceGroupServiceImpl";
 import { AttendanceServiceImpl } from "./services/attendance/AttendanceServiceImpl";
@@ -50,6 +50,7 @@ import { PracticumClassroomsAndAssistantsServiceImpl } from "./services/facade/p
 import { MeetingServiceImpl } from "./services/meeting/MeetingServiceImpl";
 import { PracticumServiceImpl } from "./services/practicum/PracticumServiceImpl";
 import { ProfileServiceImpl } from "./services/profile/ProfileServiceImpl";
+import { ScoreServiceImpl } from "./services/score/ScoreServiceImpl";
 import { UserServiceImpl } from "./services/user/UserServiceImpl";
 import { JoiValidatorImpl } from "./utils/validator/JoiValidatorImpl";
 
@@ -72,6 +73,7 @@ const assistanceGroupAssistanceRepository =
   new AssistanceGroupAssistancePrismaRepositoryImpl();
 const classroomAssistantGroupPracticumRepository =
   new ClassroomAssistantGroupPracticumPrismaRepositoryImpl();
+const scoreRepository = new ScorePrismaRepositoryImpl();
 // * services
 const userService = new UserServiceImpl({ userRepository });
 const authService = new AuthServiceImpl();
@@ -106,7 +108,7 @@ const assistanceGroupService = new AssistanceGroupServiceImpl(
     assistanceGroupAssistanceRepository,
     assistantGroupControlCardRepository,
   },
-  publisher.googlePubSub
+  publisher
 );
 const controlCardService = new ControlCardServiceImpl({
   practicumRepository,
@@ -123,6 +125,11 @@ const attendanceService = new AttendanceServiceImpl({
   attendanceRepository,
   meetingRepository,
   classroomRepository,
+});
+const scoreService = new ScoreServiceImpl({
+  classroomRepository,
+  meetingRepository,
+  scoreRepository,
 });
 // * validators
 const schemaValidator = new JoiValidatorImpl();
@@ -151,7 +158,7 @@ const ClassroomHandler = new ClassroomHandlerImpl(
   schemaValidator
 );
 const meetingHandler = new MeetingHandlerImpl(
-  { meetingService, attendanceService },
+  { meetingService, attendanceService, scoreService },
   schemaValidator
 );
 const assistanceGroupHandler = new AssistanceGroupHandlerImpl(

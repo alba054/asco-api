@@ -148,20 +148,24 @@ export class PracticumHandlerImpl extends PracticumHandler {
     const { profileId } = getTokenPayload(res);
     const { practicumId } = req.params;
 
-    const attendances =
-      await this.attendanceService.getAttendancesByPracticumIdAndProfileId(
-        practicumId,
-        profileId
-      );
+    try {
+      const attendances =
+        await this.attendanceService.getAttendancesByPracticumIdAndProfileId(
+          practicumId,
+          profileId
+        );
 
-    return res
-      .status(200)
-      .json(
-        createResponse(
-          RESPONSE_MESSAGE.SUCCESS,
-          attendances.map(ListAttendanceDTO)
-        )
-      );
+      return res
+        .status(200)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            attendances.map(ListAttendanceDTO)
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
   }
 
   async getStudentPracticumControlCards(

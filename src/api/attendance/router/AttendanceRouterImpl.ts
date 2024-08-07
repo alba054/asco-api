@@ -27,6 +27,21 @@ export class AttendanceRouter extends BaseRouter {
           USER_ROLE.ASSISTANT,
         ]),
         this.handler.deleteAttendance
+      )
+      .put(
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ADMIN,
+          USER_ROLE.ASSISTANT,
+        ]),
+        this.handler.putAttendance
+      )
+      .get(
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ADMIN,
+          USER_ROLE.ASSISTANT,
+          USER_ROLE.STUDENT,
+        ]),
+        this.handler.getAttendance
       );
 
     return this.router;

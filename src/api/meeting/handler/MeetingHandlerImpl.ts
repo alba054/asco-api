@@ -16,23 +16,59 @@ import { IPostMeetingAttendancePayload } from "../../../utils/interfaces/request
 import { MeetingAttendancePostPayloadSchema } from "../../../utils/validator/attendance/Joi/MeetingAttendancePostPayloadSchema";
 import { AttendanceService } from "../../../services/attendance/AttendanceService";
 import { ListStudentAttendanceDTO } from "../../../utils/dto/attendances/IListStudentAttendanceDTO";
+import { IPostMeetingResponseScore } from "../../../utils/interfaces/request/IPostMeetingResponseScore";
+import { MeetingResponseScorePostPayloadSchema } from "../../../utils/validator/score/MeetingResponseScorePostPayloadSchema";
+import { ScoreService } from "../../../services/score/ScoreService";
 
 export class MeetingHandlerImpl extends MeetingHandler {
   private meetingService: MeetingService;
   private attendanceService: AttendanceService;
+  private scoreService: ScoreService;
   private schemaValidator: SchemaValidator;
 
   constructor(
     service: {
       meetingService: MeetingService;
       attendanceService: AttendanceService;
+      scoreService: ScoreService;
     },
     schemaValidator: SchemaValidator
   ) {
     super();
     this.meetingService = service.meetingService;
     this.attendanceService = service.attendanceService;
+    this.scoreService = service.scoreService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async postMeetingResponseScore(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { id } = req.params;
+    const payload: IPostMeetingResponseScore = req.body;
+    const { profileId } = getTokenPayload(res);
+
+    try {
+      this.schemaValidator.validate({
+        schema: MeetingResponseScorePostPayloadSchema,
+        payload,
+      });
+
+      await this.scoreService.addResponseScore(id, payload, profileId);
+
+      return res
+        .status(201)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            "successfully insert response score"
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
   }
 
   async postMeetingAttendances(
