@@ -19,18 +19,22 @@ import { ListStudentAttendanceDTO } from "../../../utils/dto/attendances/IListSt
 import { IPostMeetingScore } from "../../../utils/interfaces/request/IPostMeetingResponseScore";
 import { MeetingScorePostPayloadSchema } from "../../../utils/validator/score/MeetingResponseScorePostPayloadSchema";
 import { ScoreService } from "../../../services/score/ScoreService";
+import { ControlCardService } from "../../../services/controlCard/ControlCardService";
+import { MeetingControlCardDTO } from "../../../utils/dto/controlCard/IMeetingControlCardDTO";
 
 export class MeetingHandlerImpl extends MeetingHandler {
   private meetingService: MeetingService;
   private attendanceService: AttendanceService;
   private scoreService: ScoreService;
   private schemaValidator: SchemaValidator;
+  private controlCardService: ControlCardService;
 
   constructor(
     service: {
       meetingService: MeetingService;
       attendanceService: AttendanceService;
       scoreService: ScoreService;
+      controlCardService: ControlCardService;
     },
     schemaValidator: SchemaValidator
   ) {
@@ -38,7 +42,36 @@ export class MeetingHandlerImpl extends MeetingHandler {
     this.meetingService = service.meetingService;
     this.attendanceService = service.attendanceService;
     this.scoreService = service.scoreService;
+    this.controlCardService = service.controlCardService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async getMeetingControlCards(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { id } = req.params;
+    const { profileId } = getTokenPayload(res);
+
+    try {
+      const cards =
+        await this.controlCardService.getControlCardByMeetingIdAndAssistantId(
+          id,
+          profileId
+        );
+
+      return res
+        .status(201)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            cards.map(MeetingControlCardDTO)
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
   }
 
   async postMeetingScore(
@@ -63,7 +96,7 @@ export class MeetingHandlerImpl extends MeetingHandler {
         .json(
           createResponse(
             RESPONSE_MESSAGE.SUCCESS,
-            "successfully insert response score"
+            "successfully insert meeting score"
           )
         );
     } catch (error) {

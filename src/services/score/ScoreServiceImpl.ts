@@ -5,8 +5,59 @@ import { NotFoundError } from "../../Exceptions/http/NotFoundError";
 import { ERRORCODE } from "../../utils";
 import { IPostMeetingScore } from "../../utils/interfaces/request/IPostMeetingResponseScore";
 import { ScoreService } from "./ScoreService";
+import { IPostPracticumExamScore } from "../../utils/interfaces/request/IPostPracticumExamScore";
+import { ExamScoreEntity } from "../../entity/examScore/ExamScoreEntity";
 
 export class ScoreServiceImpl extends ScoreService {
+  async addPracticumExamScore(
+    id: string,
+    payload: IPostPracticumExamScore,
+    profileId: string
+  ): Promise<void> {
+    const practicum = await this.practicumRepository.getPracticumById(id);
+
+    if (!practicum) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "practicum's not found"
+      );
+    }
+
+    const oldScore =
+      await this.examScoreRepository.getScoreByMeetingIdAndStudentIdAndType(
+        id,
+        payload.studentId
+      );
+
+    if (oldScore) {
+      throw new BadRequestError(
+        ERRORCODE.BAD_REQUEST_ERROR,
+        "this student has been scored"
+      );
+    }
+
+    if (!practicum?.participants.map((p) => p.id).includes(profileId)) {
+      throw new BadRequestError(
+        ERRORCODE.BAD_REQUEST_ERROR,
+        "assistant's not in practicum participants"
+      );
+    }
+
+    if (!practicum?.participants.map((p) => p.id).includes(payload.studentId)) {
+      throw new BadRequestError(
+        ERRORCODE.BAD_REQUEST_ERROR,
+        "student's not in practicum participants"
+      );
+    }
+
+    const score = new ExamScoreEntity(payload.score, {
+      studentId: payload.studentId,
+      practicumId: id,
+    });
+
+    await this.examScoreRepository.insertNewScore(score);
+  }
+
   async addResponseScore(
     meetingId: string,
     payload: IPostMeetingScore,
@@ -68,7 +119,7 @@ export class ScoreServiceImpl extends ScoreService {
       );
     }
 
-    const score = new ScoreEntity(SCORE_TYPE.RESPONSE, payload.score, {
+    const score = new ScoreEntity(payload.type, payload.score, {
       classroomId: classroom.id,
       meetingId: meetingId,
       studentId: payload.studentId,

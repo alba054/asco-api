@@ -5,6 +5,25 @@ import { ERRORCODE } from "../../utils";
 import { ControlCardService } from "./ControlCardService";
 
 export class ControlCardServiceImpl extends ControlCardService {
+  async getControlCardByMeetingIdAndAssistantId(
+    id: string,
+    profileId: string
+  ): Promise<ControlCardEntity[]> {
+    const meeting = await this.meetingRepository.getMeetingById(id);
+
+    if (!meeting) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "meetings's not found"
+      );
+    }
+
+    return await this.controlCardRepository.getControlCardByMeetingIdAndAssistantId(
+      id,
+      profileId
+    );
+  }
+
   async getControlCardsByPracticumAndGroupMentor(
     practicumId: string,
     id: string,

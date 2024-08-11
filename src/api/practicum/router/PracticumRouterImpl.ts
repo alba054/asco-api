@@ -127,6 +127,13 @@ export class PracticumRouterImpl extends BaseRouter {
         this.handler.postAssitantsAndClassrooms
       );
 
+    // * score practicum exam
+    this.router
+      .route(this.path + "/:practicumId/scores")
+      .post(
+        this.authorizationMiddlware.authorize([USER_ROLE.ASSISTANT]),
+        this.handler.postPracticumExamScore
+      );
     // * get student control card in practicum by admin and assistant
     this.router
       .route(this.path + "/:practicumId/students/:id/cards")

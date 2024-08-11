@@ -25,7 +25,14 @@ export abstract class PracticumHandler {
       this.deleteAssistantFromPracticum.bind(this);
     this.getPracticumMeetingAttendances =
       this.getPracticumMeetingAttendances.bind(this);
+    this.postPracticumExamScore = this.postPracticumExamScore.bind(this);
   }
+
+  abstract postPracticumExamScore(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract getPracticumMeetingAttendances(
     req: Request,

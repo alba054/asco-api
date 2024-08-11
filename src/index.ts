@@ -32,6 +32,7 @@ import { AssistanceGroupPrismaRepositoryImpl } from "./repository/assistanceGrou
 import { AttendancePrismaRepositoryImpl } from "./repository/attendance/AttendancePrismaRepositoryImpl";
 import { ClassroomPrismaRepositoryImpl } from "./repository/classroom/ClassroomPrismaRepositoryImpl";
 import { ControlCardPrismaRepositoryImpl } from "./repository/controlCard/ControlCardPrismaRepositoryImpl";
+import { ExamScorePrismaRepositoryImpl } from "./repository/examScore/ExamScorePrismaRepositoryImpl";
 import { AssistanceGroupAssistancePrismaRepositoryImpl } from "./repository/facade/assistanceGroupAssistanceRepository/AssistanceGroupAssistancePrismaRepositoryImpl";
 import { AssistantGroupControlCardPrismaRepositoryImpl } from "./repository/facade/assistantGroupControlCardRepository/AssistantGroupControlCardPrismaRepositoryImpl";
 import { ClassroomAssistantGroupPracticumPrismaRepositoryImpl } from "./repository/facade/classroomAssistantGroupPracticumRepository/ClassroomAssistantGroupPracticumPrismaRepositoryImpl";
@@ -79,6 +80,7 @@ const classroomAssistantGroupPracticumRepository =
   new ClassroomAssistantGroupPracticumPrismaRepositoryImpl();
 const scoreRepository = new ScorePrismaRepositoryImpl();
 const assistanceRepository = new AssistancePrismaRepositoryImpl();
+const examScoreRepository = new ExamScorePrismaRepositoryImpl();
 // * services
 const userService = new UserServiceImpl({ userRepository });
 const authService = new AuthServiceImpl();
@@ -119,6 +121,7 @@ const assistanceGroupService = new AssistanceGroupServiceImpl(
 const controlCardService = new ControlCardServiceImpl({
   practicumRepository,
   controlCardRepository,
+  meetingRepository,
 });
 const classroomPracticumStudentsService =
   new ClassroomPracticumStudentsServiceImpl({
@@ -136,6 +139,8 @@ const scoreService = new ScoreServiceImpl({
   classroomRepository,
   meetingRepository,
   scoreRepository,
+  examScoreRepository,
+  practicumRepository,
 });
 const assistanceService = new AssistanceServiceImpl({ assistanceRepository });
 // * validators
@@ -153,6 +158,7 @@ const practicumHandler = new PracticumHandlerImpl(
     assistanceGroupService,
     controlCardService,
     attendanceService,
+    scoreService,
   },
   schemaValidator
 );
@@ -165,7 +171,7 @@ const ClassroomHandler = new ClassroomHandlerImpl(
   schemaValidator
 );
 const meetingHandler = new MeetingHandlerImpl(
-  { meetingService, attendanceService, scoreService },
+  { meetingService, attendanceService, scoreService, controlCardService },
   schemaValidator
 );
 const assistanceGroupHandler = new AssistanceGroupHandlerImpl(

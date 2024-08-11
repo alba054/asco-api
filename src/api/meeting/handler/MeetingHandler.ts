@@ -9,7 +9,14 @@ export abstract class MeetingHandler {
     this.getMeetingAttendances = this.getMeetingAttendances.bind(this);
     this.postMeetingAttendances = this.postMeetingAttendances.bind(this);
     this.postMeetingScore = this.postMeetingScore.bind(this);
+    this.getMeetingControlCards = this.getMeetingControlCards.bind(this);
   }
+
+  abstract getMeetingControlCards(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract postMeetingScore(
     req: Request,

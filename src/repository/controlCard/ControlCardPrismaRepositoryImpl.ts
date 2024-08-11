@@ -6,6 +6,57 @@ import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 import { ControlCardRepository } from "./ControlCardRepository";
 
 export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
+  async getControlCardByMeetingIdAndAssistantId(
+    meetingId: string,
+    assitantId: string
+  ): Promise<ControlCardEntity[]> {
+    const cards = await prismaDb.db?.controlCard.findMany({
+      where: {
+        meetingId,
+        group: {
+          assistantId: assitantId,
+        },
+      },
+      include: {
+        firstAssistance: true,
+        secondAssistance: true,
+        meeting: { select: { assistanceDeadline: true } },
+        student: true,
+      },
+    });
+
+    return (
+      cards?.map((c) => {
+        return new ControlCardEntity("", c.profileId, c.meetingId, {
+          id: c.id,
+          firstAssistance: new AssistanceEntity(c.firstAssistance?.status!, {
+            id: c.firstAssistance?.id,
+            date: Number(c.firstAssistance?.date),
+          }),
+          secondAssistance: new AssistanceEntity(c.secondAssistance?.status!, {
+            id: c.secondAssistance?.id,
+            date: Number(c.secondAssistance?.date),
+          }),
+          meeting: new MeetingEntity(
+            0,
+            "",
+            0,
+            Number(c.meeting.assistanceDeadline)
+          ),
+          student: new ProfileEntity(
+            c.student.username,
+            c.student.fullname,
+            c.student.nickname,
+            c.student.classOf,
+            {
+              profilePic: c.student.profilePic ?? "",
+            }
+          ),
+        });
+      }) ?? []
+    );
+  }
+
   async getControlCardById(cardId: string): Promise<ControlCardEntity | null> {
     const card = await prismaDb.db?.controlCard.findUnique({
       where: {

@@ -31,6 +31,9 @@ import { ControlCardEntity } from "../../../entity/controlCard/ControlCardEntity
 import { ListAttendanceDTO } from "../../../utils/dto/attendances/IListAttendanceDTO";
 import { AttendanceService } from "../../../services/attendance/AttendanceService";
 import { ListMeetingAttendanceDTO } from "../../../utils/dto/meeting/IListMeetingAttendanceDTO";
+import { ScoreService } from "../../../services/score/ScoreService";
+import { IPostPracticumExamScore } from "../../../utils/interfaces/request/IPostPracticumExamScore";
+import { PracticumExamScorePostPayloadSchema } from "../../../utils/validator/practicum/Joi/PracticumExamScorePostPayloadSchema";
 
 export class PracticumHandlerImpl extends PracticumHandler {
   private practicumService: PracticumService;
@@ -40,6 +43,7 @@ export class PracticumHandlerImpl extends PracticumHandler {
   private practicumClassroomsAndAssistantsService: PracticumClassroomsAndAssistantsService;
   private controlCardService: ControlCardService;
   private attendanceService: AttendanceService;
+  private scoreService: ScoreService;
 
   constructor(
     service: {
@@ -49,6 +53,7 @@ export class PracticumHandlerImpl extends PracticumHandler {
       assistanceGroupService: AssistanceGroupService;
       controlCardService: ControlCardService;
       attendanceService: AttendanceService;
+      scoreService: ScoreService;
     },
     schemaValidator: SchemaValidator
   ) {
@@ -60,7 +65,38 @@ export class PracticumHandlerImpl extends PracticumHandler {
     this.assistanceGroupService = service.assistanceGroupService;
     this.controlCardService = service.controlCardService;
     this.attendanceService = service.attendanceService;
+    this.scoreService = service.scoreService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async postPracticumExamScore(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId } = req.params;
+    const payload: IPostPracticumExamScore = req.body;
+    const { profileId } = getTokenPayload(res);
+
+    try {
+      this.schemaValidator.validate({
+        schema: PracticumExamScorePostPayloadSchema,
+        payload,
+      });
+
+      await this.scoreService.addPracticumExamScore(practicumId, payload, profileId);
+
+      return res
+        .status(201)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            "successfully insert exam score"
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
   }
 
   async getPracticumMeetingAttendances(
