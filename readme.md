@@ -56,4 +56,4 @@ untuk menambahkan data student pada database
 1. (assistance.getAssistanceById) /api/assistances/{assistanceId} -> get assistance by id (authorized for admin, asssistant, and student)
 2. (assistance.updateAssistance) /api/assistances/{assistanceId} -> update assistance (authorized for assistant)
 3. (meetings.getMeetingControlCards) /api/meetings/{meetingId}/cards -> get students control card by meeting (authorized for assistant)
-4. (practicum.scorePracticumExam) /api/practicums/{practicumId}/scores -> input exam score for student (authorized for assistant )
+4. (practicum.scorePracticumExam) /api/practicums/{practicumId}/scores -> input exam score for student (authorized for assistant)
