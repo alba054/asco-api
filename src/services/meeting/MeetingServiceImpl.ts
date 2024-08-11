@@ -8,6 +8,27 @@ import { MeetingService } from "./MeetingService";
 import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 
 export class MeetingServiceImpl extends MeetingService {
+  async getMeetingsByAssistantIdOrCoAssistantIdAndPracticum(
+    assistantId: string,
+    practicum?: any
+  ): Promise<MeetingEntity[]> {
+    const assistant = await this.profileRepository.getProfileByProfileId(
+      assistantId
+    );
+
+    if (!assistant) {
+      throw new NotFoundError(
+        ERRORCODE.USER_NOT_FOUND_ERROR,
+        "user's not found"
+      );
+    }
+
+    return await this.meetingRepository.getMeetingsByAssistantIdOrCoAssistantIdAndPracticum(
+      assistantId,
+      practicum
+    );
+  }
+
   async getMeetingAttendancesByPracticumId(
     practicumId: string,
     classroom?: any

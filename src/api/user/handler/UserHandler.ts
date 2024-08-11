@@ -9,7 +9,14 @@ export abstract class UserHandler {
     this.deleteUser = this.deleteUser.bind(this);
     this.putUser = this.putUser.bind(this);
     this.getUserInfo = this.getUserInfo.bind(this);
+    this.getUserMeetings = this.getUserMeetings.bind(this);
   }
+
+  abstract getUserMeetings(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract getUserInfo(
     req: Request,

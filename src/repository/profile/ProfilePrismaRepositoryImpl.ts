@@ -5,6 +5,39 @@ import { ProfileRepository } from "./ProfileRepository";
 import { UserEntity } from "../../entity/user/UserEntity";
 
 export class ProfilePrismaRepositoryImpl extends ProfileRepository {
+  async getProfileByProfileId(
+    profileId: string
+  ): Promise<ProfileEntity | null> {
+    const profile = await prismaDb.db?.profile.findUnique({
+      where: { id: profileId },
+      include: {
+        user: {
+          select: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!profile) {
+      return null;
+    }
+
+    return new ProfileEntity(
+      profile.username,
+      profile.fullname,
+      profile.nickname,
+      profile.classOf,
+      {
+        githubUsername: profile.githubUsername ?? "",
+        id: profile.id,
+        instagramUsername: profile.instagramUsername ?? "",
+        profilePic: profile.profilePic ?? "",
+        user: new UserEntity(profile.username, "", profile.user.role),
+      }
+    );
+  }
+
   async getProfiles(
     s?: string | undefined,
     role?: USER_ROLE | undefined,
@@ -18,13 +51,15 @@ export class ProfilePrismaRepositoryImpl extends ProfileRepository {
               role,
             },
           },
-          practicum ? {
-            practicums: {
-              some: {
-                id: practicum,
-              },
-            },
-          } : {},
+          practicum
+            ? {
+                practicums: {
+                  some: {
+                    id: practicum,
+                  },
+                },
+              }
+            : {},
           {
             OR: [{ username: { contains: s } }, { fullname: { contains: s } }],
           },

@@ -1,6 +1,10 @@
 import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
 
 export abstract class MeetingRepository {
+  abstract getMeetingsByAssistantIdOrCoAssistantIdAndPracticum(
+    assistantId: string,
+    practicum?: string
+  ): Promise<MeetingEntity[]>;
   abstract getMeetingAttendancesByPracticumId(
     practicumId: string,
     classroom: any

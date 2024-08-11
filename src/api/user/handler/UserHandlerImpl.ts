@@ -18,12 +18,15 @@ import { ProfileDTO } from "../../../utils/dto/profile/IProfileDTO";
 import { ListProfileDTO } from "../../../utils/dto/profile/IListProfileDTO";
 import { IPutUserPayload } from "../../../utils/interfaces/request/IPutUserPayload";
 import { UserPutPayloadSchema } from "../../../utils/validator/user/Joi/UserPutPayloadSchema";
+import { MeetingService } from "../../../services/meeting/MeetingService";
+import { ListMeetingDTO } from "../../../utils/dto/meeting/IListMeetingDTO";
+import { ListAssistantMeetingDTO } from "../../../utils/dto/meeting/IListAssistantMeetingDTO";
 
 export class UserHandlerImpl extends UserHandler {
   private authService: AuthService;
   private userService: UserService;
   private profileService: ProfileService;
-
+  private meetingService: MeetingService;
   private schemaValidator: SchemaValidator;
 
   constructor(
@@ -31,6 +34,7 @@ export class UserHandlerImpl extends UserHandler {
       authService: AuthService;
       userService: UserService;
       profileService: ProfileService;
+      meetingService: MeetingService;
     },
     schemaValidator: SchemaValidator
   ) {
@@ -38,7 +42,36 @@ export class UserHandlerImpl extends UserHandler {
     this.authService = service.authService;
     this.userService = service.userService;
     this.profileService = service.profileService;
+    this.meetingService = service.meetingService;
     this.schemaValidator = schemaValidator;
+  }
+
+  async getUserMeetings(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { profileId } = getTokenPayload(res);
+    const { practicum } = req.query;
+
+    try {
+      const meetings =
+        await this.meetingService.getMeetingsByAssistantIdOrCoAssistantIdAndPracticum(
+          profileId,
+          practicum
+        );
+
+      return res
+        .status(200)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            ListAssistantMeetingDTO(meetings, profileId)
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
   }
 
   async getUserInfo(

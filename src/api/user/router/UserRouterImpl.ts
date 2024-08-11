@@ -59,6 +59,14 @@ export class UserRouterImpl extends BaseRouter {
         this.handler.getUsersMaster
       );
 
+    // * get user's schedules
+    this.router
+      .route(this.path + "/meetings")
+      .get(
+        this.authorizationMiddlware.authorize([USER_ROLE.ASSISTANT]),
+        this.handler.getUserMeetings
+      );
+
     // * delete user by admin using userId
     this.router
       .route(this.path + "/:username")

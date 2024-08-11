@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "migrate": "prisma migrate dev --name ",
+    "migrate::dev": "cp .env.dev .env && prisma generate && prisma db push",
+    "migrate::sandbox": "cp .env.sandbox .env && prisma generate && prisma db push",
     "start::dev": "cp .env.dev .env && prisma generate && nodemon ./src/index.ts",
     "start::sandbox": "cp .env.sandbox .env && prisma generate && nodemon ./src/index.ts",
     "build": "rimraf ./dist && tsc",

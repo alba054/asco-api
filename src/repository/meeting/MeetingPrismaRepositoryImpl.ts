@@ -11,6 +11,47 @@ import { AttendanceEntity } from "../../entity/attendance/AttendanceEntity";
 import { UserEntity } from "../../entity/user/UserEntity";
 
 export class MeetingPrismaRepositoryImpl extends MeetingRepository {
+  async getMeetingsByAssistantIdOrCoAssistantIdAndPracticum(
+    assistantId: string,
+    practicum?: string
+  ): Promise<MeetingEntity[]> {
+    const meetings = await prismaDb.db?.meeting.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              {
+                assistantId,
+              },
+              {
+                coAssistantId: assistantId,
+              },
+            ],
+          },
+          { practicumId: practicum },
+        ],
+      },
+    });
+
+    return (
+      meetings?.map((m) => {
+        return new MeetingEntity(
+          m.number,
+          m.lesson,
+          Number(m.meetingDate),
+          Number(m.assistanceDeadline),
+          {
+            assistantId: m.assistantId,
+            coAssistantId: m.coAssistantId ?? "",
+            id: m.id,
+            module: m.module ?? "",
+            practicumId: m.practicumId,
+          }
+        );
+      }) ?? []
+    );
+  }
+
   async getMeetingAttendancesByPracticumId(
     practicumId: string,
     classroom: any

@@ -1,3 +1,5 @@
+import { AssistanceHandlerImpl } from "./api/assistance/handler/AssistanceHandlerImpl";
+import { AssistanceRouterImpl } from "./api/assistance/router/AssistanceRouter";
 import { AssistanceGroupHandlerImpl } from "./api/assistanceGroup/handler/AssistanceGroupHandlerImpl";
 import { AssistanceGroupRouterImpl } from "./api/assistanceGroup/router/AssistanceGroupRouter";
 import { AttendanceHandlerImpl } from "./api/attendance/handler/AttendanceHandlerImpl";
@@ -25,6 +27,7 @@ import { GetPracticumMeetingsMiddleware } from "./middleware/api/GetPracticumMee
 import { GetPracticumsMiddleware } from "./middleware/api/GetPracticumsMiddleware";
 import { AuthorizationBearer } from "./middleware/auth/AuthorizationBearer";
 import { BasicAuthMiddleware } from "./middleware/auth/BasicAuth";
+import { AssistancePrismaRepositoryImpl } from "./repository/assistance/AssistancePrismaRepositoryImpl";
 import { AssistanceGroupPrismaRepositoryImpl } from "./repository/assistanceGroup/AssistanceGroupPrismaRepositoryImpl";
 import { AttendancePrismaRepositoryImpl } from "./repository/attendance/AttendancePrismaRepositoryImpl";
 import { ClassroomPrismaRepositoryImpl } from "./repository/classroom/ClassroomPrismaRepositoryImpl";
@@ -40,6 +43,7 @@ import { PracticumPrismaRepositoryImpl } from "./repository/practicum/PracticumP
 import { ProfilePrismaRepositoryImpl } from "./repository/profile/ProfilePrismaRepositoryImpl";
 import { ScorePrismaRepositoryImpl } from "./repository/score/ScorePrismaRepositoryImpl";
 import { UserPrismaRepositoryImpl } from "./repository/user/UserPrismaRepositoryImpl";
+import { AssistanceServiceImpl } from "./services/assistance/AssistanceServiceImpl";
 import { AssistanceGroupServiceImpl } from "./services/assistanceGroup/AssistanceGroupServiceImpl";
 import { AttendanceServiceImpl } from "./services/attendance/AttendanceServiceImpl";
 import { AuthServiceImpl } from "./services/auth/AuthServiceImpl";
@@ -74,6 +78,7 @@ const assistanceGroupAssistanceRepository =
 const classroomAssistantGroupPracticumRepository =
   new ClassroomAssistantGroupPracticumPrismaRepositoryImpl();
 const scoreRepository = new ScorePrismaRepositoryImpl();
+const assistanceRepository = new AssistancePrismaRepositoryImpl();
 // * services
 const userService = new UserServiceImpl({ userRepository });
 const authService = new AuthServiceImpl();
@@ -98,6 +103,7 @@ const classRoomService = new ClassroomServiceImpl({
 const meetingService = new MeetingServiceImpl({
   meetingRepository,
   practicumRepository,
+  profileRepository,
 });
 const assistantGroupControlCardRepository =
   new AssistantGroupControlCardPrismaRepositoryImpl();
@@ -131,11 +137,12 @@ const scoreService = new ScoreServiceImpl({
   meetingRepository,
   scoreRepository,
 });
+const assistanceService = new AssistanceServiceImpl({ assistanceRepository });
 // * validators
 const schemaValidator = new JoiValidatorImpl();
 // * handlers
 const userHandler = new UserHandlerImpl(
-  { authService, userService, profileService },
+  { authService, userService, profileService, meetingService },
   schemaValidator
 );
 const practicumHandler = new PracticumHandlerImpl(
@@ -174,6 +181,10 @@ const controlCardHandler = new ControlCardHandlerImpl(
 );
 const attendanceHandler = new AttendanceHandlerImpl(
   { attendanceService },
+  schemaValidator
+);
+const assistanceHandler = new AssistanceHandlerImpl(
+  { assistanceService },
   schemaValidator
 );
 // * middleware
@@ -221,6 +232,10 @@ const attendanceRouter = new AttendanceRouter(
   attendanceHandler,
   authorizationMiddleware
 );
+const assistanceRouter = new AssistanceRouterImpl(
+  assistanceHandler,
+  authorizationMiddleware
+);
 
 connectDatabase(prismaDb);
 
@@ -233,4 +248,5 @@ startServer([
   fileRouter,
   cardRouter,
   attendanceRouter,
+  assistanceRouter,
 ]).start();

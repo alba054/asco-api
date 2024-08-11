@@ -1,6 +1,7 @@
 runtime: nodejs20
 env_variables:
-  DATABASE_URL_LOCAL: "mysql://root:12345678@34.128.67.12:3306/asco"
+  DATABASE_URL: "mysql://root:12345678@34.128.67.12:3306/asco"
+  NODE_ENV: sandbox
   HOST: 0.0.0.0
   JWT_SECRET: "^[Nk&S,!;5;N9sUFt#,GBlsWdKB,YPaMyTY]zv4SCkNd}aioJ#"
   ISSUER: api.jj

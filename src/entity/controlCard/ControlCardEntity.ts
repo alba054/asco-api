@@ -1,4 +1,5 @@
 import { AssistanceEntity } from "../assistance/AssistanceEntity";
+import { AssistanceGroupEntity } from "../assistanceGroup/AssistanceGroupEntity";
 import { MeetingEntity } from "../meeting/MeetingEntity";
 import { PracticumEntity } from "../practicum/PracticumEntity";
 import { ProfileEntity } from "../profile/ProfileEntitiy";
@@ -29,6 +30,7 @@ export class ControlCardEntity {
   private _secondAssistance?: AssistanceEntity | undefined;
   private _firstAssistanceId?: string | undefined;
   private _secondAssistanceId?: string | undefined;
+  private _group?: AssistanceGroupEntity | undefined;
 
   constructor(
     practicumId: string,
@@ -43,6 +45,7 @@ export class ControlCardEntity {
       secondAssistance?: AssistanceEntity;
       firstAssistanceId?: string;
       secondAssistanceId?: string;
+      group?: AssistanceGroupEntity;
     }
   ) {
     this._practicumId = practicumId;
@@ -56,6 +59,14 @@ export class ControlCardEntity {
     this.secondAssistance = args?.secondAssistance;
     this.firstAssistanceId = args?.firstAssistanceId;
     this.secondAssistanceId = args?.secondAssistanceId;
+    this.group = args?.group;
+  }
+
+  public get group(): AssistanceGroupEntity | undefined {
+    return this._group;
+  }
+  public set group(value: AssistanceGroupEntity | undefined) {
+    this._group = value;
   }
 
   public get firstAssistanceId(): string | undefined {

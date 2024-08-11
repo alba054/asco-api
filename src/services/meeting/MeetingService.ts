@@ -4,18 +4,27 @@ import { MeetingRepository } from "../../repository/meeting/MeetingRepository";
 import { PracticumRepository } from "../../repository/practicum/PracticumRepository";
 import { IPostClassroomMeetingPayload } from "../../utils/interfaces/request/IPostClassroomMeetingPayload";
 import { IPutClassroomMeetingPayload } from "../../utils/interfaces/request/IPutClassroomMeetingPayload";
+import { ProfileRepository } from "../../repository/profile/ProfileRepository";
 
 export abstract class MeetingService {
   protected meetingRepository: MeetingRepository;
   protected practicumRepository: PracticumRepository;
+  protected profileRepository: ProfileRepository;
 
   constructor(repository: {
     meetingRepository: MeetingRepository;
     practicumRepository: PracticumRepository;
+    profileRepository: ProfileRepository;
   }) {
     this.meetingRepository = repository.meetingRepository;
     this.practicumRepository = repository.practicumRepository;
+    this.profileRepository = repository.profileRepository;
   }
+
+  abstract getMeetingsByAssistantIdOrCoAssistantIdAndPracticum(
+    assistantId: string,
+    practicum?: any
+  ): Promise<MeetingEntity[]>;
 
   abstract getMeetingAttendancesByPracticumId(
     practicumId: string,
