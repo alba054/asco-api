@@ -15,7 +15,8 @@
     "studio::dev": "cp .env.dev .env && prisma generate && prisma studio",
     "studio::sandbox": "cp .env.sandbox .env && prisma generate && prisma studio",
     "dbpush::dev": "cp .env.dev .env && prisma db push",
-    "dbpush::sandbox": "cp .env.sandbox .env && prisma db push"
+    "dbpush::sandbox": "cp .env.sandbox .env && prisma db push",
+    "seed::sandbox": "cp .env.sandbox .env && prisma generate && ts-node ./src/loader/seed_user_admin.ts"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
