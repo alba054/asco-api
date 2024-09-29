@@ -20,7 +20,7 @@ export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
       include: {
         firstAssistance: true,
         secondAssistance: true,
-        meeting: { select: { assistanceDeadline: true } },
+        meeting: true,
         student: true,
       },
     });
@@ -38,10 +38,13 @@ export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
             date: Number(c.secondAssistance?.date),
           }),
           meeting: new MeetingEntity(
-            0,
-            "",
-            0,
-            Number(c.meeting.assistanceDeadline)
+            c.meeting.number,
+            c.meeting.lesson,
+            Number(c.meeting.meetingDate),
+            Number(c.meeting.assistanceDeadline),
+            {
+              id: c.meeting.id,
+            }
           ),
           student: new ProfileEntity(
             c.student.username,
@@ -49,6 +52,7 @@ export class ControlCardPrismaRepositoryImpl extends ControlCardRepository {
             c.student.nickname,
             c.student.classOf,
             {
+              id: c.student.id,
               profilePic: c.student.profilePic ?? "",
             }
           ),

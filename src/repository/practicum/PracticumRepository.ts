@@ -1,11 +1,16 @@
 import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
+import { LabExamScoreEntity } from "../../entity/score/LabExamScoreEntity";
 
 export abstract class PracticumRepository {
+  abstract getLabExamScoreByPracticumId(
+    practicumId: string
+  ): Promise<LabExamScoreEntity[]>;
+
   abstract removeAssistantFromPracticumById(
     practicumId: string,
     username: string
   ): Promise<void>;
-  
+
   abstract getPracticumsByParticipantId(
     profileId: string
   ): Promise<PracticumEntity[]>;

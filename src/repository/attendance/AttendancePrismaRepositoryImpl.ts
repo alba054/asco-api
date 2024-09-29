@@ -42,7 +42,9 @@ export class AttendancePrismaRepositoryImpl extends AttendanceRepository {
 
     if (!attendance) return null;
 
-    return new AttendanceEntity(attendance.attendanceStatus);
+    return new AttendanceEntity(attendance.attendanceStatus, {
+      id: attendance.id,
+    });
   }
 
   async insertAttendancesForAllStudentByMeetingId(
@@ -77,13 +79,7 @@ export class AttendancePrismaRepositoryImpl extends AttendanceRepository {
         AND: [
           { meetingId },
           {
-            practicum: {
-              classrooms: {
-                some: {
-                  id: classroom,
-                },
-              },
-            },
+            classroomId: classroom,
           },
         ],
       },
@@ -119,6 +115,8 @@ export class AttendancePrismaRepositoryImpl extends AttendanceRepository {
         return new AttendanceEntity(a.attendanceStatus, {
           id: a.id,
           time: a.time ?? 0,
+          extraPoint: a.extraPoint ?? 0,
+          note: a.note ?? undefined,
           student: new ProfileEntity(
             a.student.username,
             a.student.fullname,
@@ -236,8 +234,10 @@ export class AttendancePrismaRepositoryImpl extends AttendanceRepository {
         attendances?.map((a) => {
           return new AttendanceEntity(a.attendanceStatus, {
             id: a.id,
+            time: a.time ?? 0,
             extraPoint: a.extraPoint ?? 0,
             meetingId: a.meetingId,
+            note: a.note ?? undefined,
             meeting: new MeetingEntity(
               a.meeting.number,
               a.meeting.lesson,

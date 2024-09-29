@@ -13,7 +13,10 @@ import { MeetingDTO } from "../../../utils/dto/meeting/IMeetingDTO";
 import { IPutClassroomMeetingPayload } from "../../../utils/interfaces/request/IPutClassroomMeetingPayload";
 import { PracticumMeetingPutPayloadSchema } from "../../../utils/validator/meeting/Joi/PracticumMeetingPutPayloadSchema";
 import { IPostMeetingAttendancePayload } from "../../../utils/interfaces/request/IPostMeetingAttendancePayload";
-import { MeetingAttendancePostPayloadSchema } from "../../../utils/validator/attendance/Joi/MeetingAttendancePostPayloadSchema";
+import {
+  MeetingAttendancePostPayloadSchema,
+  MeetingAttendancePutPayloadSchema,
+} from "../../../utils/validator/attendance/Joi/MeetingAttendancePostPayloadSchema";
 import { AttendanceService } from "../../../services/attendance/AttendanceService";
 import { ListStudentAttendanceDTO } from "../../../utils/dto/attendances/IListStudentAttendanceDTO";
 import { IPostMeetingScore } from "../../../utils/interfaces/request/IPostMeetingResponseScore";
@@ -21,6 +24,7 @@ import { MeetingScorePostPayloadSchema } from "../../../utils/validator/score/Me
 import { ScoreService } from "../../../services/score/ScoreService";
 import { ControlCardService } from "../../../services/controlCard/ControlCardService";
 import { MeetingControlCardDTO } from "../../../utils/dto/controlCard/IMeetingControlCardDTO";
+import { IPutMeetingAttendancePayload } from "../../../utils/interfaces/request/IPutMeetingAttendancePayload";
 
 export class MeetingHandlerImpl extends MeetingHandler {
   private meetingService: MeetingService;
@@ -46,6 +50,63 @@ export class MeetingHandlerImpl extends MeetingHandler {
     this.schemaValidator = schemaValidator;
   }
 
+  async putMeetingAttendance(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { id } = req.params;
+    const payload: IPutMeetingAttendancePayload = req.body;
+    const { profileId } = getTokenPayload(res);
+
+    try {
+      this.schemaValidator.validate({
+        schema: MeetingAttendancePutPayloadSchema,
+        payload,
+      });
+
+      await this.attendanceService.updateAttendaceByMeetingIdAndProfileId(
+        id,
+        payload,
+        profileId
+      );
+
+      return res
+        .status(200)
+        .json(
+          createResponse(
+            RESPONSE_MESSAGE.SUCCESS,
+            "successfully update attendance"
+          )
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getStudentMeetingScores(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { id } = req.params;
+    const { classroom, type } = req.query;
+
+    try {
+      const scores = await this.meetingService.getMeetingStudentMeetingScores(
+        id,
+        type,
+        classroom
+      );
+
+      return res
+        .status(200)
+        .json(createResponse(RESPONSE_MESSAGE.SUCCESS, scores));
+    } catch (error) {
+      return next(error);
+    }
+  }
+
   async getMeetingControlCards(
     req: Request,
     res: Response,
@@ -62,7 +123,7 @@ export class MeetingHandlerImpl extends MeetingHandler {
         );
 
       return res
-        .status(201)
+        .status(200)
         .json(
           createResponse(
             RESPONSE_MESSAGE.SUCCESS,

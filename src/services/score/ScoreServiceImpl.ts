@@ -7,8 +7,71 @@ import { IPostMeetingScore } from "../../utils/interfaces/request/IPostMeetingRe
 import { ScoreService } from "./ScoreService";
 import { IPostPracticumExamScore } from "../../utils/interfaces/request/IPostPracticumExamScore";
 import { ExamScoreEntity } from "../../entity/examScore/ExamScoreEntity";
+import { ScoreRecapEntity } from "../../entity/score/ScoreRecapEntity";
+import { IPutPracticumExamScore } from "../../utils/interfaces/request/IPutPracticumScore";
 
 export class ScoreServiceImpl extends ScoreService {
+  async updateExamScoreById(
+    id: string,
+    payload: IPutPracticumExamScore
+  ): Promise<void> {
+    const score = await this.examScoreRepository.getExamScoreById(id);
+
+    if (!score) {
+      throw new NotFoundError(ERRORCODE.COMMON_NOT_FOUND, "score's not found");
+    }
+
+    const scoreEntity = new ExamScoreEntity(payload.score, {
+      id,
+    });
+
+    await this.examScoreRepository.updateExamScoreById(scoreEntity);
+  }
+
+  async updateScoreById(
+    id: string,
+    payload: IPutPracticumExamScore
+  ): Promise<void> {
+    const score = await this.scoreRepository.getScoreById(id);
+
+    if (!score) {
+      throw new NotFoundError(ERRORCODE.COMMON_NOT_FOUND, "score's not found");
+    }
+
+    const scoreEntity = new ExamScoreEntity(payload.score, {
+      id,
+    });
+
+    await this.scoreRepository.updateScoreById(scoreEntity);
+  }
+
+  async getScoreRecapByPracticumIdAndStudentId(
+    practicumId: string,
+    studentId: string
+  ): Promise<ScoreRecapEntity> {
+    const recap =
+      await this.scoreRepository.getRecapScoreByPracticumIdAndStudentId(
+        practicumId,
+        studentId
+      );
+
+    if (!recap) {
+      throw new NotFoundError(ERRORCODE.COMMON_NOT_FOUND, "user's not found");
+    }
+
+    return recap;
+  }
+
+  async getScoreRecapByPracticumId(
+    practicumId: string
+  ): Promise<ScoreRecapEntity[]> {
+    const recaps = await this.scoreRepository.getRecapScoreByPracticumId(
+      practicumId
+    );
+
+    return recaps;
+  }
+
   async addPracticumExamScore(
     id: string,
     payload: IPostPracticumExamScore,

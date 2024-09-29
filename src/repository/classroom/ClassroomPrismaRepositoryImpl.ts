@@ -78,6 +78,7 @@ export class ClassroomPrismaRepositoryImpl extends ClassRoomRepository {
         practicum: {
           select: {
             badge: true,
+            courseContract: true,
             course: true,
           },
         },
@@ -96,6 +97,7 @@ export class ClassroomPrismaRepositoryImpl extends ClassRoomRepository {
             practicum: new PracticumEntity(c.practicum.course, {
               id: c.practicumId,
               badge: c.practicum.badge ?? "",
+              courseContract: c.practicum.courseContract ?? "",
             }),
             studentsCount: c._count.students,
           }

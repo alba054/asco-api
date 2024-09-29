@@ -58,12 +58,12 @@ export class ClassroomServiceImpl extends ClassroomService {
       );
     }
 
-    if (!classroom.students.find((s) => s.username === username)) {
-      throw new BadRequestError(
-        ERRORCODE.BAD_REQUEST_ERROR,
-        "you are not authorized to view this classroom's meetings"
-      );
-    }
+    // if (!classroom.students.find((s) => s.username === username)) {
+    //   throw new BadRequestError(
+    //     ERRORCODE.BAD_REQUEST_ERROR,
+    //     "you are not authorized to view this classroom's meetings"
+    //   );
+    // }
 
     return await this.meetingRepository.getMeetingsByClassroomId(classroomId);
   }

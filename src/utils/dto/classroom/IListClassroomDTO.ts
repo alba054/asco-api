@@ -7,6 +7,7 @@ interface IListClassroomDTO {
     course: string;
     badge: string;
     id: string;
+    courseContract?: string;
   };
   id: string;
   name: string;
@@ -23,6 +24,7 @@ export const ListClassroomDTO = (classroom: ClassroomEntity) => {
     meetingDay: classroom.meetingDay,
     name: classroom.name,
     practicum: {
+      courseContract: classroom.practicum?.courseContract,
       badge: constants.GCS_OBJECT_BASE(classroom.practicum?.badge),
       course: classroom.practicum?.course,
       id: classroom.practicum?.id,

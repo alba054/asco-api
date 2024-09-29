@@ -59,7 +59,10 @@ export class PracticumRouterImpl extends BaseRouter {
         this.handler.getPracticum
       )
       .put(
-        this.authorizationMiddlware.authorize([USER_ROLE.ADMIN]),
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ADMIN,
+          USER_ROLE.ASSISTANT,
+        ]),
         this.handler.putPracticum
       )
       .delete(
@@ -133,7 +136,35 @@ export class PracticumRouterImpl extends BaseRouter {
       .post(
         this.authorizationMiddlware.authorize([USER_ROLE.ASSISTANT]),
         this.handler.postPracticumExamScore
+      )
+      .get(
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ASSISTANT,
+          USER_ROLE.ADMIN,
+          USER_ROLE.STUDENT,
+        ]),
+        this.handler.getScoreRecaps
       );
+
+    this.router
+      .route(this.path + "/:practicumId/exam")
+      .get(
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ASSISTANT,
+          USER_ROLE.ADMIN,
+          USER_ROLE.STUDENT,
+        ]),
+        this.handler.getExamScore
+      );
+
+    // * get student control card in practicum by admin and assistant
+    this.router
+      .route(this.path + "/:practicumId/students/scores")
+      .get(
+        this.authorizationMiddlware.authorize([USER_ROLE.STUDENT]),
+        this.handler.getStudentScoreDetailStudent
+      );
+
     // * get student control card in practicum by admin and assistant
     this.router
       .route(this.path + "/:practicumId/students/:id/cards")
@@ -141,9 +172,20 @@ export class PracticumRouterImpl extends BaseRouter {
         this.authorizationMiddlware.authorize([
           USER_ROLE.ADMIN,
           USER_ROLE.ASSISTANT,
+          USER_ROLE.STUDENT,
         ]),
         this.handler.getStudentPracticumControlCards
       );
+
+    // * get student control card in practicum by admin and assistant
+    this.router.route(this.path + "/:practicumId/students/:id/scores").get(
+      this.authorizationMiddlware.authorize([
+        USER_ROLE.ADMIN,
+        USER_ROLE.ASSISTANT,
+        // USER_ROLE.STUDENT,
+      ]),
+      this.handler.getStudentScoreDetail
+    );
 
     // * remove assistant from practicum
     this.router

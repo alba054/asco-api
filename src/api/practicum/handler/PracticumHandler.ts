@@ -26,7 +26,36 @@ export abstract class PracticumHandler {
     this.getPracticumMeetingAttendances =
       this.getPracticumMeetingAttendances.bind(this);
     this.postPracticumExamScore = this.postPracticumExamScore.bind(this);
+    this.getScoreRecaps = this.getScoreRecaps.bind(this);
+    this.getStudentScoreDetail = this.getStudentScoreDetail.bind(this);
+    this.getStudentScoreDetailStudent =
+      this.getStudentScoreDetailStudent.bind(this);
+    this.getExamScore = this.getExamScore.bind(this);
   }
+
+  abstract getExamScore(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
+
+  abstract getStudentScoreDetailStudent(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
+
+  abstract getStudentScoreDetail(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
+
+  abstract getScoreRecaps(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract postPracticumExamScore(
     req: Request,

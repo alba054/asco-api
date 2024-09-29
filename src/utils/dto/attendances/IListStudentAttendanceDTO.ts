@@ -9,14 +9,20 @@ interface IListStudentAttendanceDTO {
     username: string;
     fullname: string;
     nickname: string;
+    classOf: string;
   };
   id: string;
   time: number;
   attendanceStatus: ATTENDANCE_STATUS;
+  extraPoint: number;
+  note?: string;
 }
 
 export const ListStudentAttendanceDTO = (attendance: AttendanceEntity) => {
   return {
+    time: attendance.time,
+    extraPoint: attendance.extraPoint,
+    note: attendance.note ?? null,
     attendanceStatus: attendance.attendanceStatus,
     id: attendance.id,
     student: {
@@ -26,6 +32,7 @@ export const ListStudentAttendanceDTO = (attendance: AttendanceEntity) => {
       profilePic:
         constants.GCS_OBJECT_BASE(attendance.student?.profilePic) ?? null,
       username: attendance.student?.username,
+      classOf: attendance.student?.classOf,
     },
   } as IListStudentAttendanceDTO;
 };

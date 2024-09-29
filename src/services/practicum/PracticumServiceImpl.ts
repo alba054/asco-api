@@ -8,6 +8,7 @@ import { IPutPracticumPayload } from "../../utils/interfaces/request/IPutPractic
 import { UserRepository } from "../../repository/user/UserRepository";
 import { USER_ROLE } from "@prisma/client";
 import { BadRequestError } from "../../Exceptions/http/BadRequestError";
+import { LabExamScoreEntity } from "../../entity/score/LabExamScoreEntity";
 
 export class PracticumServiceImpl extends PracticumService {
   constructor(repository: {
@@ -15,6 +16,23 @@ export class PracticumServiceImpl extends PracticumService {
     userRepository: UserRepository;
   }) {
     super(repository);
+  }
+
+  async getLabExamScoreByPracticumId(
+    practicumId: string
+  ): Promise<LabExamScoreEntity[]> {
+    const scores = await this.practicumRepository.getLabExamScoreByPracticumId(
+      practicumId
+    );
+
+    if (!scores) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "practicum's not found"
+      );
+    }
+
+    return scores;
   }
 
   async removeAssistantFromClassroom(

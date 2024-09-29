@@ -8,6 +8,7 @@ interface IListPracticumDTO {
   badge?: string;
   classroomsLength?: number;
   meetingsLength?: number;
+  courseContract?: string;
   classrooms: {
     id: string;
     name: string;
@@ -23,6 +24,7 @@ export const ListPracticumDTO = (practicum: PracticumEntity) => {
     id: practicum.id,
     course: practicum.course,
     badge: constants.GCS_OBJECT_BASE(practicum.badge),
+    courseContract: practicum.courseContract,
     meetingsLength: practicum.meetingsLength ?? 0,
     classroomsLength: practicum.classroomsLength ?? 0,
     classrooms: practicum.classrooms.map((c) => ({

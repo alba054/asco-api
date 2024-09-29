@@ -3,14 +3,73 @@ import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
 import { MeetingRepository } from "./MeetingRepository";
 import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 import { InternalServerError } from "../../Exceptions/http/InternalServerError";
-import { ERRORCODE } from "../../utils";
+import { constants, ERRORCODE } from "../../utils";
 import { prismaDb } from "../../config/database/PrismaORMDBConfig";
 import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
 import { AttendanceEntity } from "../../entity/attendance/AttendanceEntity";
 import { UserEntity } from "../../entity/user/UserEntity";
+import { SCORE_TYPE, USER_ROLE } from "@prisma/client";
+import { MeetingScoreEntity } from "../../entity/score/MeetingScoreEntity";
 
 export class MeetingPrismaRepositoryImpl extends MeetingRepository {
+  async getMeetingScoresById(
+    id: string,
+    type: SCORE_TYPE,
+    classroomId?: string
+  ): Promise<MeetingScoreEntity[]> {
+    const scores = await prismaDb.db?.profile.findMany({
+      where: {
+        AND: [
+          {
+            practicums: {
+              some: {
+                meetings: {
+                  some: {
+                    id,
+                  },
+                },
+              },
+            },
+          },
+          {
+            user: {
+              role: USER_ROLE.STUDENT,
+            },
+          },
+          {
+            classrooms: {
+              some: {
+                id: classroomId,
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        scores: {
+          where: {
+            AND: [{ classroomId }, { type }],
+          },
+        },
+      },
+    });
+
+    return (
+      scores?.map((s) => {
+        return {
+          student: {
+            fullname: s.fullname,
+            profilePic: constants.GCS_OBJECT_BASE(s.profilePic ?? "") ?? null,
+            username: s.username,
+          },
+          id: s.scores.at(0)?.id ?? null,
+          score: s.scores.at(0)?.score ?? null,
+        };
+      }) ?? []
+    );
+  }
+
   async getMeetingsByAssistantIdOrCoAssistantIdAndPracticum(
     assistantId: string,
     practicum?: string

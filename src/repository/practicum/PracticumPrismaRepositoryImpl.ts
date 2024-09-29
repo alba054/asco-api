@@ -1,7 +1,7 @@
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { BadRequestError } from "../../Exceptions/http/BadRequestError";
 import { InternalServerError } from "../../Exceptions/http/InternalServerError";
-import { ERRORCODE } from "../../utils";
+import { constants, ERRORCODE } from "../../utils";
 import { prismaDb } from "../../config/database/PrismaORMDBConfig";
 import { PracticumRepository } from "./PracticumRepository";
 import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
@@ -9,8 +9,54 @@ import { ProfileEntity } from "../../entity/profile/ProfileEntitiy";
 import { UserEntity } from "../../entity/user/UserEntity";
 import { ClassroomEntity } from "../../entity/classroom/ClassroomEntity";
 import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
+import { LabExamScoreEntity } from "../../entity/score/LabExamScoreEntity";
+import { USER_ROLE } from "@prisma/client";
 
 export class PracticumPrismaRepositoryImpl extends PracticumRepository {
+  async getLabExamScoreByPracticumId(
+    practicumId: string
+  ): Promise<LabExamScoreEntity[]> {
+    const scores = await prismaDb.db?.profile.findMany({
+      where: {
+        AND: [
+          {
+            practicums: {
+              some: {
+                id: practicumId,
+              },
+            },
+          },
+          {
+            user: {
+              role: USER_ROLE.STUDENT,
+            },
+          },
+        ],
+      },
+      include: {
+        LabExamScore: {
+          where: {
+            practicumId,
+          },
+        },
+      },
+    });
+
+    return (
+      scores?.map((s) => {
+        return {
+          student: {
+            fullname: s.fullname,
+            profilePic: constants.GCS_OBJECT_BASE(s.profilePic ?? "") ?? null,
+            username: s.username,
+          },
+          id: s.LabExamScore.at(0)?.id ?? null,
+          score: s.LabExamScore.at(0)?.score ?? null,
+        };
+      }) ?? []
+    );
+  }
+
   async removeAssistantFromPracticumById(
     practicumId: string,
     username: string
@@ -53,6 +99,7 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
       select: {
         id: true,
         course: true,
+        courseContract: true,
         badge: true,
         _count: {
           select: {
@@ -73,6 +120,7 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
         return new PracticumEntity(p.course, {
           badge: p.badge ?? "",
           id: p.id,
+          courseContract: p.courseContract ?? "",
           classroomsLength: p._count.classrooms,
           meetingsLength: p._count.meetings,
           classrooms: p.classrooms.map((c) => {
@@ -203,6 +251,7 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
       select: {
         id: true,
         course: true,
+        courseContract: true,
         badge: true,
         _count: {
           select: {
@@ -223,6 +272,7 @@ export class PracticumPrismaRepositoryImpl extends PracticumRepository {
         return new PracticumEntity(p.course, {
           badge: p.badge ?? "",
           id: p.id,
+          courseContract: p.courseContract ?? "",
           classroomsLength: p._count.classrooms,
           meetingsLength: p._count.meetings,
           classrooms: p.classrooms.map((c) => {

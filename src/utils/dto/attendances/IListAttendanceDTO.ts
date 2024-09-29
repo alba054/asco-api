@@ -11,17 +11,22 @@ interface IListAttendanceDTO {
     number: number;
     meetingDate: number;
   };
+  extraPoint: number;
+  note?: string;
 }
 
 export const ListAttendanceDTO = (attendance: AttendanceEntity) => {
   return {
     id: attendance.id,
     attendanceStatus: attendance.attendanceStatus,
+    time: attendance.time,
     meeting: {
       id: attendance.meeting?.id,
       lesson: attendance.meeting?.lesson,
       meetingDate: attendance.meeting?.meetingDate,
       number: attendance.meeting?.number,
     },
+    extraPoint: attendance.extraPoint,
+    note: attendance.note ?? null,
   } as IListAttendanceDTO;
 };

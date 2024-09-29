@@ -5,6 +5,7 @@ import { PracticumRepository } from "../../repository/practicum/PracticumReposit
 import { IPostClassroomMeetingPayload } from "../../utils/interfaces/request/IPostClassroomMeetingPayload";
 import { IPutClassroomMeetingPayload } from "../../utils/interfaces/request/IPutClassroomMeetingPayload";
 import { ProfileRepository } from "../../repository/profile/ProfileRepository";
+import { MeetingScoreEntity } from "../../entity/score/MeetingScoreEntity";
 
 export abstract class MeetingService {
   protected meetingRepository: MeetingRepository;
@@ -20,6 +21,12 @@ export abstract class MeetingService {
     this.practicumRepository = repository.practicumRepository;
     this.profileRepository = repository.profileRepository;
   }
+
+  abstract getMeetingStudentMeetingScores(
+    id: string,
+    type: any,
+    classroomId?: any
+  ): Promise<MeetingScoreEntity[]>;
 
   abstract getMeetingsByAssistantIdOrCoAssistantIdAndPracticum(
     assistantId: string,

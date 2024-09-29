@@ -34,6 +34,7 @@ import { ListMeetingAttendanceDTO } from "../../../utils/dto/meeting/IListMeetin
 import { ScoreService } from "../../../services/score/ScoreService";
 import { IPostPracticumExamScore } from "../../../utils/interfaces/request/IPostPracticumExamScore";
 import { PracticumExamScorePostPayloadSchema } from "../../../utils/validator/practicum/Joi/PracticumExamScorePostPayloadSchema";
+import { ListScoreRecapDTO } from "../../../utils/dto/score/IListScoreRecapDTO";
 
 export class PracticumHandlerImpl extends PracticumHandler {
   private practicumService: PracticumService;
@@ -69,6 +70,93 @@ export class PracticumHandlerImpl extends PracticumHandler {
     this.schemaValidator = schemaValidator;
   }
 
+  async getExamScore(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId } = req.params;
+
+    try {
+      const scores = await this.practicumService.getLabExamScoreByPracticumId(practicumId);
+
+      return res
+        .status(200)
+        .json(
+          createResponse(RESPONSE_MESSAGE.SUCCESS, scores)
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getStudentScoreDetailStudent(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId } = req.params;
+    const { username } = getTokenPayload(res);
+
+    try {
+      const scores =
+        await this.scoreService.getScoreRecapByPracticumIdAndStudentId(
+          practicumId,
+          username
+        );
+
+      return res
+        .status(200)
+        .json(
+          createResponse(RESPONSE_MESSAGE.SUCCESS, ListScoreRecapDTO(scores))
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getStudentScoreDetail(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId, id } = req.params;
+
+    try {
+      const scores =
+        await this.scoreService.getScoreRecapByPracticumIdAndStudentId(
+          practicumId,
+          id
+        );
+
+      return res
+        .status(200)
+        .json(
+          createResponse(RESPONSE_MESSAGE.SUCCESS, ListScoreRecapDTO(scores))
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getScoreRecaps(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const { practicumId } = req.params;
+
+    const scores = await this.scoreService.getScoreRecapByPracticumId(
+      practicumId
+    );
+
+    return res
+      .status(200)
+      .json(
+        createResponse(RESPONSE_MESSAGE.SUCCESS, scores.map(ListScoreRecapDTO))
+      );
+  }
+
   async postPracticumExamScore(
     req: Request,
     res: Response,
@@ -84,7 +172,11 @@ export class PracticumHandlerImpl extends PracticumHandler {
         payload,
       });
 
-      await this.scoreService.addPracticumExamScore(practicumId, payload, profileId);
+      await this.scoreService.addPracticumExamScore(
+        practicumId,
+        payload,
+        profileId
+      );
 
       return res
         .status(201)

@@ -1,6 +1,14 @@
+import { SCORE_TYPE } from "@prisma/client";
 import { MeetingEntity } from "../../entity/meeting/MeetingEntity";
+import { MeetingScoreEntity } from "../../entity/score/MeetingScoreEntity";
 
 export abstract class MeetingRepository {
+  abstract getMeetingScoresById(
+    id: string,
+    type: SCORE_TYPE,
+    classroomId?: string
+  ): Promise<MeetingScoreEntity[]>;
+
   abstract getMeetingsByAssistantIdOrCoAssistantIdAndPracticum(
     assistantId: string,
     practicum?: string

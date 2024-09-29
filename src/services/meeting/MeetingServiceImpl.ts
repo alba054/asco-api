@@ -6,8 +6,29 @@ import { IPostClassroomMeetingPayload } from "../../utils/interfaces/request/IPo
 import { IPutClassroomMeetingPayload } from "../../utils/interfaces/request/IPutClassroomMeetingPayload";
 import { MeetingService } from "./MeetingService";
 import { BadRequestError } from "../../Exceptions/http/BadRequestError";
+import { MeetingScoreEntity } from "../../entity/score/MeetingScoreEntity";
 
 export class MeetingServiceImpl extends MeetingService {
+  async getMeetingStudentMeetingScores(
+    id: string,
+    type: any,
+    classroomId?: any
+  ): Promise<MeetingScoreEntity[]> {
+    const scores = await this.meetingRepository.getMeetingScoresById(
+      id,
+      type,
+      classroomId
+    );
+
+    if (!scores) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "meeting's not found"
+      );
+    }
+    return scores;
+  }
+
   async getMeetingsByAssistantIdOrCoAssistantIdAndPracticum(
     assistantId: string,
     practicum?: any

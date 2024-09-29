@@ -42,7 +42,10 @@ export class ClassroomRouter extends BaseRouter {
     this.router
       .route(this.path + "/:classroomId/meetings")
       .get(
-        this.authorizationMiddlware.authorize([USER_ROLE.STUDENT]),
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.STUDENT,
+          USER_ROLE.ASSISTANT,
+        ]),
         this.handler.getClassroomMeetings
       );
 

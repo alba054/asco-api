@@ -10,8 +10,52 @@ import {
 import { IPostMeetingAttendancePayload } from "../../utils/interfaces/request/IPostMeetingAttendancePayload";
 import { AttendanceService } from "./AttendanceService";
 import { IPutAttendancePayload } from "../../utils/interfaces/request/IPutAttendancePayload";
+import { IPutMeetingAttendancePayload } from "../../utils/interfaces/request/IPutMeetingAttendancePayload";
 
 export class AttendanceServiceImpl extends AttendanceService {
+  async updateAttendaceByMeetingIdAndProfileId(
+    id: string,
+    payload: IPutMeetingAttendancePayload,
+    profileId: string
+  ): Promise<void> {
+    const meeting = await this.meetingRepository.getMeetingById(id);
+
+    if (!meeting) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "meeting's not found"
+      );
+    }
+
+    const oldAttendance =
+      await this.attendanceRepository.getAttendanceByMeetingIdAndStudentId(
+        id,
+        payload.profileId // studentId
+      );
+
+    if (!oldAttendance) {
+      throw new NotFoundError(
+        ERRORCODE.COMMON_NOT_FOUND,
+        "attendance doesn't exist"
+      );
+    }
+
+    console.log(payload);
+    console.log(oldAttendance);
+
+    const attendance = new AttendanceEntity(payload.attendanceStatus, {
+      extraPoint: payload.extraPoint,
+      note: payload.note,
+      studentId: payload.profileId,
+      time: convertDateToTimeInMinutes(
+        Math.floor(convertEpochToDate(new Date().getTime(), 8).getTime() / 1000)
+      ),
+      id: oldAttendance.id,
+    });
+
+    this.attendanceRepository.updateAttendanceById(attendance);
+  }
+
   async getAttendanceById(id: string): Promise<AttendanceEntity> {
     const attendance = await this.attendanceRepository.getAttendanceById(id);
 

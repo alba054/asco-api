@@ -33,12 +33,16 @@ export class MeetingRouter extends BaseRouter {
         this.authorizationMiddlware.authorize([
           USER_ROLE.ADMIN,
           USER_ROLE.STUDENT,
+          USER_ROLE.ASSISTANT,
         ]),
         this.getMeetingMiddleware.checkAuthorizedRole,
         this.handler.getMeeting
       )
       .put(
-        this.authorizationMiddlware.authorize([USER_ROLE.ADMIN]),
+        this.authorizationMiddlware.authorize([
+          USER_ROLE.ADMIN,
+          USER_ROLE.ASSISTANT,
+        ]),
         this.handler.putMeeting
       );
 
@@ -56,6 +60,9 @@ export class MeetingRouter extends BaseRouter {
           USER_ROLE.ADMIN,
         ]),
         this.handler.getMeetingAttendances
+      ).put(
+        this.authorizationMiddlware.authorize([USER_ROLE.ASSISTANT]),
+        this.handler.putMeetingAttendance
       );
 
     // * input response scores
@@ -64,6 +71,10 @@ export class MeetingRouter extends BaseRouter {
       .post(
         this.authorizationMiddlware.authorize([USER_ROLE.ASSISTANT]),
         this.handler.postMeetingScore
+      )
+      .get(
+        this.authorizationMiddlware.authorize([USER_ROLE.ASSISTANT]),
+        this.handler.getStudentMeetingScores
       );
 
     // * get students control card by meeting

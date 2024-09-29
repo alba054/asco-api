@@ -1,4 +1,5 @@
 import { PracticumEntity } from "../../entity/practicum/PracticumEntity";
+import { LabExamScoreEntity } from "../../entity/score/LabExamScoreEntity";
 import { PracticumRepository } from "../../repository/practicum/PracticumRepository";
 import { UserRepository } from "../../repository/user/UserRepository";
 import { IPostPracticumPayload } from "../../utils/interfaces/request/IPostPracticumPayload";
@@ -15,6 +16,10 @@ export abstract class PracticumService {
     this.practicumRepository = repository.practicumRepository;
     this.userRepository = repository.userRepository;
   }
+
+  abstract getLabExamScoreByPracticumId(
+    practicumId: string
+  ): Promise<LabExamScoreEntity[]>;
 
   abstract removeAssistantFromClassroom(
     practicumId: string,

@@ -1,3 +1,4 @@
+import { ScoreRecapEntity } from "../../entity/score/ScoreRecapEntity";
 import { ClassRoomRepository } from "../../repository/classroom/ClassroomRepository";
 import { ExamScoreRepository } from "../../repository/examScore/ExamScoreRepository";
 import { MeetingRepository } from "../../repository/meeting/MeetingRepository";
@@ -5,6 +6,7 @@ import { PracticumRepository } from "../../repository/practicum/PracticumReposit
 import { ScoreRepository } from "../../repository/score/ScoreRepository";
 import { IPostMeetingScore } from "../../utils/interfaces/request/IPostMeetingResponseScore";
 import { IPostPracticumExamScore } from "../../utils/interfaces/request/IPostPracticumExamScore";
+import { IPutPracticumExamScore } from "../../utils/interfaces/request/IPutPracticumScore";
 
 export abstract class ScoreService {
   protected scoreRepository: ScoreRepository;
@@ -26,6 +28,25 @@ export abstract class ScoreService {
     this.practicumRepository = repository.practicumRepository;
     this.examScoreRepository = repository.examScoreRepository;
   }
+
+  abstract updateExamScoreById(
+    id: string,
+    payload: IPutPracticumExamScore
+  ): Promise<void>;
+
+  abstract updateScoreById(
+    id: string,
+    payload: IPutPracticumExamScore
+  ): Promise<void>;
+
+  abstract getScoreRecapByPracticumIdAndStudentId(
+    practicumId: string,
+    studentId: string
+  ): Promise<ScoreRecapEntity>;
+
+  abstract getScoreRecapByPracticumId(
+    practicumId: string
+  ): Promise<ScoreRecapEntity[]>;
 
   abstract addPracticumExamScore(
     id: string,

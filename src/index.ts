@@ -14,6 +14,8 @@ import { MeetingHandlerImpl } from "./api/meeting/handler/MeetingHandlerImpl";
 import { MeetingRouter } from "./api/meeting/router/MeetingRouterImpl";
 import { PracticumHandlerImpl } from "./api/practicum/handler/PracticumHandlerImpl";
 import { PracticumRouterImpl } from "./api/practicum/router/PracticumRouterImpl";
+import { ScoreHandlerImpl } from "./api/score/handler/ScoreHandlerImpl";
+import { ScoreRouterImpl } from "./api/score/router/ScoreRouter";
 import { UserHandlerImpl } from "./api/user/handler/UserHandlerImpl";
 import { UserRouterImpl } from "./api/user/router/UserRouterImpl";
 import { hashImpl } from "./config/crypto";
@@ -193,6 +195,7 @@ const assistanceHandler = new AssistanceHandlerImpl(
   { assistanceService },
   schemaValidator
 );
+const scoreHandler = new ScoreHandlerImpl({ scoreService }, schemaValidator);
 // * middleware
 const basicAuthMiddleware = new BasicAuthMiddleware(userService, hashImpl);
 const authorizationMiddleware = new AuthorizationBearer(userService);
@@ -242,6 +245,7 @@ const assistanceRouter = new AssistanceRouterImpl(
   assistanceHandler,
   authorizationMiddleware
 );
+const scoreRouter = new ScoreRouterImpl(scoreHandler, authorizationMiddleware);
 
 connectDatabase(prismaDb);
 
@@ -255,4 +259,5 @@ startServer([
   cardRouter,
   attendanceRouter,
   assistanceRouter,
+  scoreRouter,
 ]).start();

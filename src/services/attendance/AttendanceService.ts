@@ -5,8 +5,10 @@ import { MeetingRepository } from "../../repository/meeting/MeetingRepository";
 import { PracticumRepository } from "../../repository/practicum/PracticumRepository";
 import { IPostMeetingAttendancePayload } from "../../utils/interfaces/request/IPostMeetingAttendancePayload";
 import { IPutAttendancePayload } from "../../utils/interfaces/request/IPutAttendancePayload";
+import { IPutMeetingAttendancePayload } from "../../utils/interfaces/request/IPutMeetingAttendancePayload";
 
 export abstract class AttendanceService {
+  
   protected attendanceRepository: AttendanceRepository;
   protected practicumRepository: PracticumRepository;
   protected meetingRepository: MeetingRepository;
@@ -23,6 +25,12 @@ export abstract class AttendanceService {
     this.meetingRepository = repository.meetingRepository;
     this.classroomRepository = repository.classroomRepository;
   }
+
+  abstract updateAttendaceByMeetingIdAndProfileId(
+    id: string,
+    payload: IPutMeetingAttendancePayload,
+    profileId: string
+  ): Promise<void>;
 
   abstract getAttendanceById(id: string): Promise<AttendanceEntity>;
 
