@@ -37,6 +37,9 @@ export class UserRouterImpl extends BaseRouter {
           USER_ROLE.STUDENT,
         ]),
         this.handler.getUserCredential
+      ).put(
+        this.authorizationMiddlware.authorize([USER_ROLE.ADMIN]),
+        this.handler.putUserSelf
       );
 
     // * user login

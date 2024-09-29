@@ -26,6 +26,8 @@ export class UserPrismaRepositoryImpl extends UserRepository {
               fullname: edittedUser.profile?.fullname,
               nickname: edittedUser.profile?.nickname,
               username: edittedUser.username,
+              githubUsername: edittedUser.profile?.githubUsername,
+              instagramUsername: edittedUser.profile?.instagramUsername,
             },
           },
         },

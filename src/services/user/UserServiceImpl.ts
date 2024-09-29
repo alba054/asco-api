@@ -39,7 +39,11 @@ export class UserServiceImpl extends UserService {
           payload.username ?? user.username,
           payload.fullname ?? user.profile?.fullname ?? "",
           payload.fullname?.split(" ").at(1) ?? user.profile?.nickname ?? "",
-          payload.classOf ?? user.profile?.classOf ?? ""
+          payload.classOf ?? user.profile?.classOf ?? "",
+          {
+            githubUsername: user.profile?.githubUsername,
+            instagramUsername: user.profile?.instagramUsername,
+          }
         ),
       }
     );

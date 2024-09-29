@@ -46,6 +46,29 @@ export class UserHandlerImpl extends UserHandler {
     this.schemaValidator = schemaValidator;
   }
 
+  async putUserSelf(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+    next: NextFunction
+  ): Promise<any> {
+    const { username } = getTokenPayload(res);
+    const payload: IPutUserPayload = req.body;
+
+    try {
+      this.schemaValidator.validate({ schema: UserPutPayloadSchema, payload });
+
+      await this.userService.updateUserByUsername(username, payload);
+
+      return res
+        .status(200)
+        .json(
+          createResponse(RESPONSE_MESSAGE.SUCCESS, "succesfully edit user")
+        );
+    } catch (error) {
+      return next(error);
+    }
+  }
+
   async getUserMeetings(
     req: Request,
     res: Response,

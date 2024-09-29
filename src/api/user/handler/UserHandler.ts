@@ -10,7 +10,14 @@ export abstract class UserHandler {
     this.putUser = this.putUser.bind(this);
     this.getUserInfo = this.getUserInfo.bind(this);
     this.getUserMeetings = this.getUserMeetings.bind(this);
+    this.putUserSelf = this.putUserSelf.bind(this);
   }
+
+  abstract putUserSelf(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any>;
 
   abstract getUserMeetings(
     req: Request,
